@@ -1,0 +1,625 @@
+/* Utility: hide anything with .is-hidden */
+.is-hidden { display: none !important; }
+/* ===== Global font: Aileron for all modal text ===== */
+body, .modal-panel, 
+.modal-title, .section h3, .section h4, 
+label, input, select, textarea, button {
+  font-family: "Aileron", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  font-weight: 400;
+  text-transform: none; /* ensures normal capitalization */
+}
+/* ===== Typography scale ===== */
+:root {
+  --font-size-body: 0.95rem;
+  --font-size-small: 0.85rem;
+  --font-size-h3: 1.1rem;
+  --font-size-h4: 1rem;
+  --font-size-title: 1.25rem;
+}
+
+/* Apply these variables */
+body, .modal-panel { font-size: var(--font-size-body); }
+.modal-title { font-size: var(--font-size-title); font-weight: 600; }
+.section h3 { font-size: var(--font-size-h3); font-weight: 600; margin-bottom: 8px; }
+.section h4 { font-size: var(--font-size-h4); font-weight: 500; margin-bottom: 6px; }
+label, input, select, textarea, button { font-size: var(--font-size-body); }
+
+/* ===== Generic Modal Styles (dark theme) ===== */
+:root {
+  --overlay-bg: rgba(0,0,0,.70);
+  --panel-bg: #0f1116;
+  --panel-border: #2b2f38;
+  --btn-bg:#5a8294;
+  --ink: #e9ecf1;
+  --muted: #aab2c1;
+  --accent: #9be0ff;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;                         /* top:0; right:0; bottom:0; left:0 */
+  display: none;                    /* hidden by default */
+  align-items: center;              /* vertical centering */
+  justify-content: center;          /* horizontal centering */
+  background: rgba(0,0,0,0.65);     /* dim backdrop */
+  z-index: 1000;
+}
+
+.modal-overlay.is-open { display: flex;                    /* open = flex centering */
+  overflow: hidden; }
+
+.modal-panel {
+  position: relative;
+  margin: 0;                        /* flex centering does the work */
+  left: auto; right: auto;          /* neutralize any older positioning */
+  top: auto;  bottom: auto;
+  transform: none;                  /* neutralize legacy slide-in offsets */
+  width: min(960px, calc(100% - 32px));
+  max-height: min(92vh, 1000px);
+  overflow: auto;
+  border-radius: 14px;
+  background: var(--panel, #0c0e10);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--panel-border);
+}
+/* center the X and keep the rounded square */
+.modal-close{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  line-height: 1;                 /* prevents vertical mis-centering */
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.modal-close:hover { background: #151922; }
+
+.modal-title,
+.modal-body{
+  margin: 0; padding: 0;
+}
+.modal-body p { color: var(--ink); line-height: 1.55; }
+
+/* Small phones: shave a tad more side padding */
+@media (max-width: 480px){
+  .modal-panel{
+    width: calc(100% - 24px);
+    max-height: 92vh;
+  }
+}
+
+.section {
+  background: #0a0d12; border: 1px solid var(--panel-border);
+  border-radius: 12px; padding: 14px;
+}
+
+.section h3 { margin: 0 0 8px; font-size: 16px; }
+
+.table {
+  width: 100%; border-collapse: collapse; font-size: 14px;
+}
+.table th, .table td {
+  border-bottom: 1px solid #1f2330; padding: 10px 8px; text-align: left;
+}
+.table th { color: var(--muted); font-weight: 600; }
+.table tr:last-child td { border-bottom: none; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #18202d; color: var(--ink); font-size: 12px; }
+
+.form-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.form-grid .full { grid-column: 1 / -1; }
+label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+input, select, textarea {
+  width: 100%; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid #2b2f38; background: #0f1219; color: var(--ink);
+}
+textarea { min-height: 100px; resize: vertical; }
+button.primary {
+  background: var(--accent); color: #001018; border: none;
+  padding: 12px 14px; border-radius: 10px; font-weight: 700; cursor: pointer;
+}
+.actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+@media (max-width: 780px) {
+  /* Let the overlay do the centering; just give the panel sensible bounds */
+  .modal-overlay {
+    align-items: flex-start;        /* start at top with a little padding */
+    padding: 5vh 12px 12px;         /* keeps edges off the screen */
+  }
+  .modal-panel {
+    position: relative;
+    width: 100%;
+    max-width: 640px;               /* keep a nice readable width cap */
+    max-height: calc(100vh - 7vh);  /* account for overlay padding */
+    margin: 0 auto;                 /* center horizontally within overlay */
+    border-radius: 12px;
+    overflow-y: auto;
+
+    /* 🔑 neutralize any previous positioning */
+    top: auto; left: auto; right: auto; bottom: auto;
+    transform: none;
+  }
+
+  .modal-body {
+    padding: 14px;
+    display: block;
+  }
+
+  .form-grid { grid-template-columns: 1fr; gap: 12px; }
+  label, input, select, textarea { font-size: 1rem; }
+  button.primary { width: 100%; padding: 12px; }
+
+  label, input, select, textarea {
+    font-size: 1rem;
+  }
+
+  button.primary {
+    width: 100%;
+    padding: 12px;
+  }
+}
+/* =========================================================
+   XL / Fullscreen modal for pages embedded via <iframe>
+   Toggles on the overlay element: .mod-size-xl
+   ========================================================= */
+
+/* Make the panel nearly fullscreen and center it */
+.mod-size-xl .modal-panel{
+  position: fixed;                /* fixed is more robust than absolute here */
+  max-width: none;
+  max-height: none;
+  border-radius: 10px;
+  overflow: hidden;               /* the iframe will handle scrolling */
+  width: 100vw;
+  height: calc(100vh - 4vh);
+  left: 50%;
+  top: 2vh;
+  transform: translateX(-50%); /* horizontal centering only */
+}
+
+/* No header for the embedded page */
+.mod-size-xl .modal-header{ display: none; }
+
+/* The body must have a definite height for the iframe’s 100% to work */
+.mod-size-xl .modal-body{
+  display: block;
+  padding: 0;
+  height: 100%;                   /* <-- critical line */
+  overflow: hidden;
+}
+
+/* The iframe should occupy the full panel area */
+.modal-iframe{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.policies-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 20px 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.policies-box h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-family: "MD Tall", "Aileron", sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.policies-box ul {
+  margin: 0 0 10px 18px;
+  padding: 0;
+  list-style-type: disc;
+}
+
+.policies-box li {
+  margin-bottom: 4px;
+}
+
+.agree-policy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.agree-policy input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #9be0ff; 
+}
+/* ===== TYPOGRAPHY OVERRIDES ===== */
+
+/* Apply Aileron to absolutely all headings inside modals */
+.modal-panel h1,
+.modal-panel h2,
+.modal-panel h3,
+.modal-panel h4,
+.modal-panel h5,
+.modal-panel h6,
+.modal-title,
+.section h3,
+.section h4,
+.policies-box h4 {
+  font-family: "Aileron", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif !important;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0; /* <- removes that wide spacing */
+  margin-bottom: 0.4em;
+}
+
+/* Body text alignment and spacing consistency */
+.modal-panel,
+.modal-panel p,
+.modal-panel label,
+.modal-panel li,
+.modal-panel input,
+.modal-panel select,
+.modal-panel textarea {
+  font-family: "Aileron", system-ui, sans-serif !important;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+/* Fine-tune letter spacing globally (optional) */
+:root {
+  --heading-letter-spacing: 0;
+  --body-letter-spacing: 0.02em;
+}
+/* Availability matrix */
+.avail-matrix {
+  --am-gap: 10px;
+  --am-radius: 10px;
+  --am-border: rgba(255,255,255,.08);
+  --am-cell-bg: rgba(255,255,255,.02);
+  --am-cell-bg-hover: rgba(255,255,255,.06);
+  --am-accent: #9be0ff;
+  display: grid;
+  grid-template-columns: 140px repeat(3, 1fr);
+  gap: var(--am-gap);
+  padding: 12px;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: rgba(0,0,0,.15);
+}
+
+.avail-matrix .am-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--am-cell-bg);
+  border: 1px solid var(--am-border);
+  border-radius: 8px;
+  min-height: 44px;
+}
+
+.avail-matrix .am-head {
+  background: transparent;
+  border: none;
+  justify-content: flex-start;
+  padding-left: 6px;
+}
+
+.avail-matrix .am-rowhead {
+  justify-content: flex-start;
+  padding-left: 10px;
+}
+
+.avail-matrix .am-corner {
+  justify-content: flex-start;
+}
+
+.avail-matrix .am-check {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: "Aileron", system-ui, sans-serif;
+  font-size: .95rem;
+}
+
+.avail-matrix input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: var(--am-accent);
+  cursor: pointer;
+}
+
+.avail-matrix .am-cell:hover {
+  background: var(--am-cell-bg-hover);
+}
+/* === Chips selector === */
+.chips-row{
+  display:flex; flex-wrap:wrap; gap:8px; margin:10px 0;
+}
+.chip{
+  appearance:none; border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04); color:var(--ink);
+  padding:8px 12px; border-radius:999px; cursor:pointer;
+  font-family:"Aileron", system-ui, sans-serif; font-size:.95rem;
+  transition:background .15s, border-color .15s, transform .02s;
+}
+.chip:hover{ background:rgba(255,255,255,.08); }
+.chip.is-selected{
+  background:#9be0ff; border-color:#9be0ff; color:#eafff2;
+}
+.linklike{ background:none; border:none; color:var(--accent); cursor:pointer; }
+.chips-helpers{ font-size:.9rem; color:var(--muted); }
+.chips-helpers .sep{ margin:0 8px; opacity:.6; }
+
+#chipWindows{ display:none; }          /* shown after at least one day */
+#chipWindows.is-visible{ display:flex; }
+/* Wizard helpers (re-use chip styles from Option A) */
+.wiz-step { border:1px dashed rgba(255,255,255,.12); border-radius:10px; padding:12px; }
+.wiz-step + .wiz-step { margin-top:10px; }
+.wiz-step.is-hidden { display:none; }
+.wiz-caption{ margin:0 0 10px; color:var(--muted); font-size:.9rem; }
+.wiz-actions{ display:flex; gap:10px; margin-top:10px; }
+.btn-outline{
+  background:transparent; border:1px solid rgba(255,255,255,.25);
+  color:var(--ink); padding:10px 12px; border-radius:10px; cursor:pointer;
+}
+.wiz-day-block{ margin-bottom:10px; }
+.wiz-day-title{ font-weight:600; margin-bottom:6px; }
+/* === Shared accent (same as chip selected) === */
+:root{
+  --accent-blue: #9be0ff;      /* main */
+  --accent-blue-700: #8acbe9;  /* hover/active */
+  --accent-blue-800: #7cb3cc;  /* active */
+}
+
+/* Primary action buttons: “Next (times)”, “Done”, “Send Request” */
+button.primary {
+  background: var(--btn-bg);
+  color: #f8f8f8;
+  border: 1px solid var(--btn-bg);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+button.primary:hover {
+  filter:brightness(1.05);
+}
+
+button.primary:active {
+  background: var(--accent-blue-800);
+  border-color: var(--accent-blue-800);
+}
+
+/* Keep chip selected color consistent with buttons */
+.chip.is-selected {
+  background: var(--btn-bg);
+  color: #b3e6fd;
+  border-color: var(--btn-bg);
+}
+
+/* ===== Recap (day | times) ===== */
+.wiz-recap {
+  margin-top: .75rem;
+}
+
+.wiz-recap-title {
+  margin: 0 0 .5rem 0;
+}
+
+.wiz-recap .recap-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  row-gap: .5rem;
+}
+
+.wiz-recap .recap-row {
+  display: grid;
+  grid-template-columns: 110px 1fr; /* day | times */
+  column-gap: .75rem;
+  align-items: center;
+}
+
+.wiz-recap .recap-day {
+  font-weight: 600;
+  color: var(--muted-foreground, #cbd5e1);
+}
+
+/* reuse your chip look, just a bit smaller for recap */
+.chip-mini {
+  font-size: .85rem;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  border: 1px solid var(--chip-border, #444);
+  background: var(--chip-bg, transparent);
+  color: var(--chip-fg, #e5e7eb);
+  display: inline-block;
+  margin: 0 .25rem .25rem 0;
+}
+
+/* Optional: make the “link” style look like a text link */
+button.link {
+  background: transparent;
+  border: 0;
+  color: #b3e6fd;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+button.link:hover {
+  filter:brightness(1.05);
+}
+
+/* ===== Phase 8: Modal fade-in (animations) ===== */
+@keyframes fadeSlideUpModal {
+  from { opacity: 0; transform: var(--enter-transform, translateY(10px)); }
+  to   { opacity: 1; transform: var(--enter-transform, translateY(0)); }
+}
+
+.modal-overlay,
+.modal-panel {
+  opacity: 0;
+  transform: var(--enter-transform, translateY(10px));
+  animation: fadeSlideUpModal 0.6s ease forwards;
+}
+/* Keep XL panel horizontally centered even while animating */
+.mod-size-xl .modal-panel{
+  --enter-transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-panel {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* Debug utility – outlines every element when <body class="debug"> is active */
+.debug * {
+  outline: 1px dashed rgba(0, 255, 180, 0.25);
+  outline-offset: 0;
+}
+
+/* ---------------------------------
+   Mobile-first responsive overrides
+----------------------------------*/
+@media (max-width: 768px) {
+  /* (Keep empty for now – later phases will add rules) */
+}
+
+/* Optional: button visuals (keep your existing styles if you have them) */
+.menu-btn { appearance: none; border: 0; background: transparent; padding: 8px; }
+.menu-btn .menu-icon { display: inline-block; width: 24px; height: 2px; background: #eaeaea; position: relative; }
+.menu-btn .menu-icon::before,
+.menu-btn .menu-icon::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 2px; background: #eaeaea;
+}
+.menu-btn .menu-icon::before { top: -7px; }
+.menu-btn .menu-icon::after  { top:  7px; }
+/* Mobile About image: default hidden */
+.about-mobile {
+  display: none;
+}
+
+.about-mobile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Phone breakpoint: hide carousel, show static image */
+@media (max-width: 768px) {
+  #hero .carousel.hero {
+    display: none !important;
+  }
+  #hero .about-mobile {
+    display: block !important;
+    margin: 0 auto;
+  }
+}
+
+/* ===== Phase 5: Modal typography & buttons (mobile) ===== */
+@media (max-width: 768px) {
+  .modal-panel {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .modal-panel h1 { font-size: 1.35rem; letter-spacing: 0; }
+  .modal-panel h2 { font-size: 1.20rem; letter-spacing: 0; }
+  .modal-panel h3 { font-size: 1.10rem; letter-spacing: 0; }
+  .modal-panel h4,
+  .modal-panel h5,
+  .modal-panel h6 { letter-spacing: 0; }
+
+  .modal-panel p,
+  .modal-panel label,
+  .modal-panel li,
+  .modal-panel .field-label {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  .modal-panel .btn,
+  .modal-panel button,
+  .modal-panel .primary {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 10px;
+    line-height: 1.1;
+    touch-action: manipulation;
+  }
+}
+
+/* ===== Phase 6: PT form layout & spacing (mobile) ===== */
+@media (max-width: 768px) {
+  /* form root */
+  #pt-request {
+    display: block;
+  }
+
+  /* main grid wrapper if present */
+  #pt-request .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px; /* consistent rhythm */
+  }
+
+  /* labels and inputs */
+  #pt-request label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    display: block;
+  }
+  #pt-request input,
+  #pt-request select,
+  #pt-request textarea,
+  #pt-request .chip {
+    width: 100%;
+    min-height: 44px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+  #pt-request textarea { min-height: 120px; }
+
+  /* availability wizard block: give breathing room */
+  #pt-request #wizAvail,
+  #pt-request .wiz-step,
+  #pt-request .wiz-recap {
+    margin-top: 10px;
+  }
+
+  /* submit button */
+  #pt-request .actions .primary,
+  #pt-request button[type="submit"] {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  /* validation hints */
+  #pt-request input:invalid,
+  #pt-request select:invalid,
+  #pt-request textarea:invalid {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}
