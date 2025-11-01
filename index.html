@@ -645,6 +645,59 @@ h2,
     /* Make room so content isn't hidden behind the fixed bar */
     body { padding-bottom: 64px; }
   }
+  /* Mobile: overlay label on top of the image (prototype) */
+  @media (max-width: 768px) {
+  /* Overlay label, text transparent but image stays sharp */
+  .service-card .label-overlay {
+    position: absolute;
+    inset: 0;                           /* stretch across the image area */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10%;                     /* about 80% width for text area */
+    text-align: center;
+
+    background: none;                   /* no dark overlay, image fully visible */
+    border: none;
+    min-height: 0;
+
+    font-weight: 800;
+    font-size: clamp(20px, 8vw, 34px);
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.75);   /* ← slightly transparent text */
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); /* to keep readable on bright parts */
+
+    pointer-events: none;               /* allows tapping through to the card */
+    }
+  }
+
+  @media (max-width: 768px) {
+  /* Overlay label, text transparent but image stays sharp */
+  .portfolio-card .label-overlay {
+    position: absolute;
+    inset: 0;                           /* stretch across the image area */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10%;                     /* about 80% width for text area */
+    text-align: center;
+
+    background: none;                   /* no dark overlay, image fully visible */
+    border: none;
+    min-height: 0;
+
+    font-weight: 800;
+    font-size: clamp(20px, 8vw, 34px);
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.75);   /* ← slightly transparent text */
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); /* to keep readable on bright parts */
+
+    pointer-events: none;               /* allows tapping through to the card */
+    }
+  }
+
   </style>
 </head>
 <body>
@@ -702,27 +755,27 @@ h2,
         <div class="services-grid">
           <a href="#" class="service-card" data-modal="personal-training">
             <img class="service-thumb" src="media/personal_training.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Personal training workout">
-            <div class="service-title">Personal Training</div>
+            <div class="service-title label-overlay">Personal Training</div>
           </a>
           <a href="#" class="service-card" data-modal="dance-lessons">
             <img class="service-thumb" src="media/private_group dance lesson2.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Dance class in studio">
-            <div class="service-title">Private / Group Dance Lessons</div>
+            <div class="service-title label-overlay">Private / Group Dance Lessons</div>
           </a>
           <a href="#" class="service-card" data-modal="event-workshops">
             <img class="service-thumb" src="media/private_group_bw.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Workshop or class with audience">
-            <div class="service-title">Event Workshops</div>
+            <div class="service-title label-overlay">Event Workshops</div>
           </a>
           <a href="#" class="service-card" data-modal="collaborative-invitation">
             <img class="service-thumb" src="media/collaborative_initiative.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Creative meeting and notes">
-            <div class="service-title">Collaborative Invitation</div>
+            <div class="service-title label-overlay">Collaborative Invitation</div>
           </a>
           <a href="#" class="service-card" data-modal="choreography">
             <img class="service-thumb" src="media/choreo_group_solo.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Stage choreography performance">
-            <div class="service-title">Choreography: Solo, Group, Couple</div>
+            <div class="service-title label-overlay">Choreography: Solo, Group, Couple</div>
           </a>
           <a href="#" class="service-card" data-modal="wedding-choreography">
             <img class="service-thumb" src="media/weddingcolor.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Wedding first dance">
-            <div class="service-title">Wedding Choreography</div>
+            <div class="service-title label-overlay">Wedding Choreography</div>
           </a>
         </div>
       </div>
@@ -741,22 +794,16 @@ h2,
             data-title=""
           >
             <img class="portfolio-thumb" src="media/event_highlights.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Event highlights">
-            <div class="portfolio-title">Event Highlights</div>
+            <div class="portfolio-title label-overlay">Event Highlights</div>
           </a>
           <a class="portfolio-card" data-modal-url="modals/dance-capsules.html" data-modal-size="xl">
             <img class="portfolio-thumb" src="media/D&C_v1.png" loading="eager" fetchpriority="high" decoding="async" alt="Dance Capsules">
-            <div class="portfolio-title">Dance Capsules</div>
+            <div class="portfolio-title label-overlay">Dance Capsules</div>
           </a>
           <a href="#" class="portfolio-card" data-modal="biography">
             <img class="portfolio-thumb" src="media/picture01.jpg" loading="eager" fetchpriority="high" decoding="async" alt="Biography">
-            <div class="portfolio-title">Biography</div>
+            <div class="portfolio-title label-overlay">Biography</div>
           </a>
-          <!-- temporarily disabled
-          <a class="portfolio-card" href="portfolio/reviews-reflection.html">
-            <img class="portfolio-thumb" src="https://picsum.photos/id/1067/1600/1000" alt="Reviews and reflection">
-            <div class="portfolio-title">Reviews &amp; Reflection</div>
-          </a>
-          temporarily disabled -->
         </div>
       </div>
     </section>
