@@ -422,35 +422,33 @@ h2,
      Phase 1 — Global Mobile Scaling
   ----------------------------------*/
   @media (max-width: 768px) {
-
-    body {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      padding: 0;
-      margin: 0;
-    }
-
-    /* Remove header padding on mobile; keep footer as-is */
-    header { padding: 2px !important; }
-    footer { padding: 10px 16px; }
-    text-align: center;
-    }
-
-    img, video {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .carousel-container, .hero, .portfolio {
-      width: 100%;
-      padding: 0 10px;
-    }
-
-    .portfolio-grid {
-      grid-template-columns: 1fr;
-      gap: 1.2rem;
-    }
+  body {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
   }
+
+  /* Remove header padding on mobile; keep footer as-is */
+  header { padding: 2px !important; }
+  footer { padding: 10px 16px; }
+
+  /* keep center alignment on small screens if you want it */
+  text-align: center;
+
+  img, video { max-width: 100%; height: auto; }
+
+  .carousel-container, .hero, .portfolio {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  /* mobile-only single column */
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}
 
   /* ---------------------------------
      Phase 3 – Hero Scaling
@@ -960,11 +958,18 @@ function updateDots() {
     var offset = function(){ return (header ? header.offsetHeight : 0) + 8; }; // small breathing room
 
     function smoothScrollTo(targetId){
-      var el = document.getElementById(targetId);
-      if (!el) return;
-      var top = el.getBoundingClientRect().top + window.pageYOffset - offset();
-      window.scrollTo({ top: top, behavior: 'smooth' });
-    }
+  // Back-to-top should go to absolute page top
+  if (targetId === 'top') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  const top = el.getBoundingClientRect().top + window.pageYOffset - offset();
+  window.scrollTo({ top, behavior: 'smooth' });
+}
 
     // Intercept clicks on internal anchors in header and footer
     document.addEventListener('click', function(e){
