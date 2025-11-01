@@ -298,6 +298,13 @@ function initAvailabilityWidgets(root) {
   btnClose.addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal(); });
+  // Also close when tapping the bottom footer nav (mobile)
+  // Works even if the page then smooth-scrolls to a section.
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.mobile-fixed-nav a[href^="#"]');
+    if (!link) return;
+    if (overlay.classList.contains('is-open')) closeModal();
+  });
 
   // Generic trigger: any element with data-modal or data-modal-url
   document.addEventListener('click', function (e) {
