@@ -427,15 +427,12 @@ h2,
     line-height: 1.6;
     padding: 0;
     margin: 0;
+    text-align: center;
   }
 
   /* Remove header padding on mobile; keep footer as-is */
   header { padding: 2px !important; }
   footer { padding: 10px 16px; }
-
-  /* keep center alignment on small screens if you want it */
-  text-align: center;
-
   img, video { max-width: 100%; height: auto; }
 
   .carousel-container, .hero, .portfolio {
@@ -720,11 +717,11 @@ h2,
         <div class="slides" id="slides" style="transform:translateX(0%)">
           <!-- Slide 1: About image -->
           <div class="slide slide--image" data-kind="image" aria-label="About">
-            <img src="media/About.png" alt="About">
+            <img src="media/About.png" loading="eager" fetchpriority="high" decoding="async" alt="About">
           </div>
           <!-- Slide 2: Banner image (full, no crop) -->
           <div class="slide slide--image" data-kind="image" aria-label="Priscilla">
-            <img src="media/Banner.PNG" alt="Priscilla Josh — banner">
+            <img src="media/Banner.png" loading="eager" fetchpriority="high" decoding="async" alt="Priscilla Josh — banner">
           </div>
         </div>
       </div>
