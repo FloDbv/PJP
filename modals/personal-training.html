@@ -1,0 +1,176 @@
+<!-- Title pulled into the modal header -->
+<div class="section">
+  <p>
+    Intro message mentioning CPT, experience, ...
+  </p>
+<style>
+@media (max-width: 768px) {
+  form#pt-request input,
+  form#pt-request select,
+  form#pt-request textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+</style>
+
+<div class="section">
+  <h3>Fares & Bundles</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Package</th><th>Length</th><th>What’s included</th><th>Price</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Intro Session</td>
+        <td>60 min</td>
+        <td>Assessment + custom plan</td>
+        <td><strong>80 GEL</strong></td>
+      </tr>
+      <tr>
+        <td>Single Session</td>
+        <td>60 min</td>
+        <td>Customizable upon request</td>
+        <td><strong>60 GEL</strong></td>
+      </tr>
+      <tr>
+        <td>4-Pack</td>
+        <td>4 × 60 min</td>
+        <td>Assessmennt + Personalized program + home drills</td>
+        <td><strong>200 GEL</strong> <span class="badge">save X%</span></td>
+      </tr>
+      <tr>
+        <td>8-Pack</td>
+        <td>8 × 60 min</td>
+        <td>Assessment + Periodized plan + video feedback</td>
+        <td><strong>650 GEL</strong> <span class="badge">save X%</span></td>
+      </tr>
+      <tr>
+        <td>Duet Add-on</td>
+        <td>per session</td>
+        <td>Train with a partner (max 2)</td>
+        <td><strong>+20 GEL</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h3>Ready to start? Use the form below—I'll confirm by email within 24 hours.</h3>
+  <form id="pt-request"
+      action="https://api.web3forms.com/submit"   
+      method="POST">                               
+
+  <!-- Web3Forms config -->
+  <input type="hidden" name="access_key" value="06d65f42-5cf5-403d-99cd-2e1d3d2e5f67">
+  <input type="hidden" name="from_name" value="Priscilla Josh — Personal Training">
+  <input type="hidden" name="subject" value="New Personal Training request">
+
+  <!-- Honeypot to stop bots (must be present & hidden) -->
+  <input type="checkbox" name="botcheck" class="hidden" style="display:none!important"> 
+
+  <div class="form-grid">
+    <div>
+      <label for="pt-name">Name</label>
+      <input id="pt-name" name="name" required>
+    </div>
+
+    <div>
+      <label for="pt-email">Email</label>
+      <input id="pt-email" type="email" name="email"
+             data-web3forms-replyto="true" required>
+    </div>
+
+    <div>
+      <label for="pt-mobile">Mobile (optional)</label>
+      <input id="pt-mobile" type="tel" name="mobile"> 
+    </div>
+
+    <div>
+      <label for="pt-package">Package</label>
+      <select id="pt-package" name="package" required>
+        <option value="Intro Session (60m)">Intro Session (60m)</option>         
+        <option value="Single Session (60m)">Single Session (60m)</option>
+        <option value="4-Pack">4-Pack</option>
+        <option value="8-Pack">8-Pack</option>
+      </select>
+    </div>
+
+    <div class="full">
+      <label for="pt-start">Start date</label>
+      <input id="pt-start" type="date" name="start_date"> 
+    </div>
+
+    <!-- Preferred availability (Two-step mini-wizard) -->
+    <div class="field" id="wizAvail">
+      <label class="field-label">Preferred days & times <span class="muted">(optional)</span></label>
+
+      <!-- Step 1: pick days -->
+      <div class="wiz-step" data-step="days">
+        <p class="wiz-caption">Pick the days that usually work:</p>
+        <div class="chips-row" id="wizDays">
+          <button type="button" class="chip" data-day="mon">Mon</button>
+          <button type="button" class="chip" data-day="tue">Tue</button>
+          <button type="button" class="chip" data-day="wed">Wed</button>
+          <button type="button" class="chip" data-day="thu">Thu</button>
+          <button type="button" class="chip" data-day="fri">Fri</button>
+          <button type="button" class="chip" data-day="sat">Sat</button>
+          <button type="button" class="chip" data-day="sun">Sun</button>
+        </div>
+        <div class="wiz-actions">
+          <button type="button" class="primary" id="wizNext" disabled>Next (times)</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="wiz-step is-hidden" data-step="windows">
+        <p class="wiz-caption">For each chosen day, pick the time windows:</p>
+        <div id="wizWindows"></div>
+        <div class="wiz-actions">
+          <button type="button" class="btn-outline" id="wizBack">Back</button>
+          <button type="button" class="primary" id="wizDone">Done</button>
+        </div>
+      </div>
+
+      <!-- Outputs used by Web3Forms (names are correct) -->
+      <textarea name="preferred_windows" id="availJSON" hidden></textarea>
+      <input type="hidden" name="preferred_windows_human" id="availHuman">
+
+      <!-- Recap (wizard controls visibility) -->
+      <div id="wizRecap" class="wiz-recap is-hidden">
+        <h5 class="wiz-recap-title">Selected availability</h5>
+        <p id="wizRecapText" class="wiz-recap-text">No preferences selected yet.</p>
+        <button type="button" class="link" id="wizEdit">Edit selection</button>
+      </div>
+
+      <div class="full">
+        <label for="pt-goals">Goals / notes</label>
+        <textarea id="pt-goals" name="notes" placeholder="Injury history, goals, equipment available…"></textarea>
+      </div>
+    </div>
+
+    <!-- POLICIES -->
+    <div class="policies-box">
+      <h4>Policies</h4>
+      <ul>
+        <li><strong>Rescheduling & Cancellations:</strong> ≥ 24 h notice — free. &lt; 24 h — session counted.</li>
+        <li><strong>Lateness:</strong> Up to 15 min tolerated; session still ends on time.</li>
+        <li><strong>Safety:</strong> Please declare injuries or medical concerns in the form.</li>
+      </ul>
+      <label class="agree-policy">
+        <input type="checkbox" name="agree_policies" required>
+        <span>I agree to the policies above.</span>
+      </label>
+    </div>
+    <!-- END POLICIES -->
+
+    <div class="actions">
+      <button type="submit" class="primary">Send Request</button>
+      <p id="pt-status" class="muted" aria-live="polite"></p> 
+    </div>
+  </div>
+
+  <!-- Optional: redirect after success (if you want to keep the modal open, omit this) -->
+  <!-- <input type="hidden" name="redirect" value="https://your-site.com/?sent=1#contact"> -->
+</form>
+</div>
