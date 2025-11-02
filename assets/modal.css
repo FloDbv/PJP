@@ -84,8 +84,7 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
 .modal-close:hover { background: #151922; }
 
 .modal-panel .modal-close { outline: none; -webkit-tap-highlight-color: transparent; }
-.modal-panel .modal-close:focus { outline: none; box-shadow: 0 0 0 2px rgba(155,224,255,.35); }
-
+.modal-panel .modal-close:focus { outline: none; box-shadow: none; }
 .modal-title,
 .modal-body{
   margin: 0; padding: 0;
@@ -492,6 +491,12 @@ button.link:hover {
   opacity: 0;
   transform: var(--enter-transform, translateY(10px));
   animation: fadeSlideUpModal 0.6s ease forwards;
+}
+/* Fallback: guarantee visibility whenever the modal is open (WebKit/iPad) */
+.modal-overlay.is-open,
+.modal-overlay.is-open .modal-panel {
+  opacity: 1;
+  transform: none;
 }
 /* Only animate when open */
 .modal-overlay.is-open,
