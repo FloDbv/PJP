@@ -267,8 +267,16 @@ function initAvailabilityWidgets(root) {
 })();
 
         if (!titleText) setHeaderTitleFromContent();
-        const first = body.querySelector('input, select, textarea, button, a, [tabindex]:not([tabindex="-1"])');
-        (first || btnClose).focus({ preventScroll: true });
+        // Prefer a real control; never default to the close button
+        const first = body.querySelector('input, select, textarea, button:not(.modal-close), a[href], [tabindex]:not([tabindex="-1"])');
+        if (first) {
+          first.focus({ preventScroll: true });
+        } else {
+          // Focus the panel itself (temporary tabindex for accessibility)
+          panel.setAttribute('tabindex', '-1');
+          panel.focus({ preventScroll: true });
+          panel.removeAttribute('tabindex');
+        }
       })
       .catch(err => {
         console.warn('Modal fetch failed:', err);
@@ -282,6 +290,16 @@ function initAvailabilityWidgets(root) {
     applySize(size);
     titleEl.textContent = titleText || 'Loading…';
     overlay.classList.add('is-open');
+    // Safari/iPad: force animation restart so panel never stays at opacity:0
+    const panel = overlay.querySelector('.modal-panel');
+    if (panel) {
+      panel.style.animation = 'none';
+      panel.offsetHeight;  // reflow
+      panel.style.animation = '';
+    }
+    overlay.style.animation = 'none';
+    overlay.offsetHeight;   // reflow
+    overlay.style.animation = '';
     document.documentElement.style.overflow = 'hidden';
 
     // create the iframe
@@ -353,8 +371,9 @@ function initAvailabilityWidgets(root) {
     setTimeout(() => {
       try { iframe.contentWindow.dispatchEvent(new Event('resize')); } catch (_) {}
     }, 400);
-
-    btnClose.focus({ preventScroll: true });
+    panel.setAttribute('tabindex', '-1');
+    panel.focus({ preventScroll: true });
+    panel.removeAttribute('tabindex');
   }
 
   function closeModal() {
