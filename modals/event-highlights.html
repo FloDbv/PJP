@@ -74,7 +74,13 @@ h1, h2, h3, h4,
 
     /* ===== Layout ===== */
     .content { display: grid; grid-template-columns: 380px 1fr; min-height: 70vh; }
-    @media (max-width: 900px) { .content { grid-template-columns: 1fr; grid-template-rows: 55vh 45vh; } }
+    @media (max-width: 900px){
+  /* When the map is hidden (default on mobile), use a single row = full-width list */
+  .content { grid-template-columns: 1fr; grid-template-rows: auto; }
+
+  /* When the user taps “Show map”, add a second row for the map */
+  body.show-map .content { grid-template-rows: auto 48vh; }  /* adjust 48vh to taste */
+}
 
     aside {
       background: var(--panel); padding: 16px 16px 24px; overflow: auto; border-right: 1px solid var(--border);
@@ -86,6 +92,8 @@ h1, h2, h3, h4,
     .filters select, .filters input {
       background: #0f1116; color: var(--ink); border: 1px solid #343945; border-radius: 8px; padding: 8px 10px;
     }
+     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    
     .chipbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
     .chip { background: var(--chip); color: var(--chip-ink); padding: 6px 10px; border-radius: 999px; font-size: 12px; border: 1px solid #2d313b; }
     .count { font-weight: 600; color: var(--accent); }
@@ -100,6 +108,24 @@ h1, h2, h3, h4,
 
     #map { width: 100%; height: calc(100vh - 64px); }
     @media (max-width: 900px) { #map { height: 100%; } }
+
+    /* Mobile: hide map by default, show via button */
+    @media (max-width: 900px){
+    /* start hidden */
+    #map { display: none; }
+    body.show-map #map { display: block; }
+
+  .eh-map-toggle{
+    display: inline-block;
+    margin: 4px 0 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #343945;
+    background: #0f1116;
+    color: var(--ink);
+    font-weight: 600;
+  }
+}
 
     .leaflet-popup-content { margin: 8px; }
     .popup-title { font-weight: 700; margin-bottom: 4px; }
@@ -170,10 +196,31 @@ h1, h2, h3, h4,
       </header>
 
       <div class="filters">
-        <input id="search" type="search" placeholder="Search event or city…" aria-label="Search" />
-        <select id="yearFilter" aria-label="Filter by year"><option value="">All years</option></select>
-        <select id="roleFilter" aria-label="Filter by role"><option value="">All roles</option></select>
-      </div>
+      <input id="search" type="search" placeholder="Search event or city…" aria-label="Search" />
+      
+      <button type="button" id="toggleMap" class="eh-map-toggle" aria-expanded="false">Show map</button>
+
+      <select id="yearFilter" aria-label="Filter by year">
+        <option value="">All years</option>
+      </select>
+
+      <select id="roleFilter" aria-label="Filter by role">
+        <option value="">All roles</option>
+      </select>
+
+      <!-- NEW: Sort by -->
+      <label for="sortBy" class="sr-only">Sort by</label>
+      <select id="sortBy" aria-label="Sort by">
+        <option value="year-desc" selected>Date (newest first)</option>
+        <option value="year-asc">Date (oldest first)</option>
+        <option value="country-asc">Country A→Z</option>
+        <option value="country-desc">Country Z→A</option>
+        <option value="role-asc">Role A→Z</option>
+        <option value="role-desc">Role Z→A</option>
+        <option value="title-asc">Title A→Z</option>
+        <option value="title-desc">Title Z→A</option>
+      </select>
+    </div>
 
       <div class="chipbar">
         <span class="chip"><span class="count" id="totalEvents">0</span> events</span>
@@ -214,7 +261,7 @@ h1, h2, h3, h4,
       { country:"Poland", city:"Bukowina Tatrzańska", lat:49.3240, lng:20.1078, title:"Summer Summit — West Coast Swing (Level 5)", role:"Attended", date:"2023" },
       { country:"Poland", city:"Bukowina Tatrzańska", lat:49.3240, lng:20.1078, title:"4 Days Intensive — West Coast Swing (Fitness Instructor)", role:"Taught", date:"2023" },
       { country:"Sweden", city:"Stockholm", lat:59.3293, lng:18.0686, title:"Uptown Swing — West Coast Swing (Intermediate J&J)", role:"Competed", date:"2023" },
-      { country:"Netherlands", city:"Amsterdam", lat:52.3676, lng:4.9041, title:"Viva Kizomba Congress — Kizomba (Instructor, LPK style)", role:"Taught", date:"2023" },
+      { country:"Netherlands", city:"Amsterdam", lat:52.3676, lng:4.9041, title:"Viva Kizomba Congress — Kizomba", role:"", date:"2023" },
       { country:"Denmark", city:"Bosei Sports High School", lat:55.13264412398683, lng:12.008772543710773, title:"Cuban Salsa Summer Camp — Salsa, Bachata (Rueda Instructor)", role:"Taught", date:"2023" },
       { country:"Malaysia", city:"Kuala Lumpur", lat:3.1390, lng:101.6869, title:"Afro Latin Festival Asia — Salsa, Bachata", role:"Attended", date:"2023" },
       { country:"Malaysia", city:"Kuala Lumpur", lat:3.1390, lng:101.6869, title:"Rueda International Flashmob Day — Rueda, Cuban Salsa", role:"Taught", date:"2023" },
@@ -302,7 +349,37 @@ function nameSetFromGroups(groupsObj) {
     // --- Map ---
     const map = L.map('map', { worldCopyJump: true, minZoom: 2 }).setView([20, 10], 2);
     // --- Make sure the map sizes correctly when shown inside a modal/iframe
-function kickMapSize() {
+    // Mobile toggle for the map
+const toggleBtn = document.getElementById('toggleMap');
+if (toggleBtn) {
+  const mq = window.matchMedia('(max-width: 900px)');
+
+  function initMobileState(){
+    if (mq.matches) {
+      document.body.classList.remove('show-map');         // default hidden
+      toggleBtn.textContent = 'Show map';
+      toggleBtn.setAttribute('aria-expanded','false');
+    } else {
+      document.body.classList.add('show-map');            // always visible on desktop
+      toggleBtn.textContent = 'Hide map';
+      toggleBtn.setAttribute('aria-expanded','true');
+    }
+    try { setTimeout(()=>map.invalidateSize(true), 150); } catch {}
+  }
+  initMobileState();
+  mq.addEventListener('change', initMobileState);
+
+  toggleBtn.addEventListener('click', () => {
+    const open = !document.body.classList.contains('show-map');
+    document.body.classList.toggle('show-map', open);
+    toggleBtn.textContent = open ? 'Hide map' : 'Show map';
+    toggleBtn.setAttribute('aria-expanded', String(open));
+    // Let Leaflet recompute tiles whenever we reveal the map
+    try { setTimeout(()=>map.invalidateSize(true), 150); } catch {}
+  });
+}
+
+    function kickMapSize() {
   try { map.invalidateSize(true); } catch(e) {}
 }
 // one-time kick shortly after startup
@@ -429,6 +506,7 @@ function rebuildCountriesLayer(visibleIsoSet, visibleNameSet) {
     const yearEl  = document.getElementById('yearFilter');
     const roleEl  = document.getElementById('roleFilter');
     const searchEl= document.getElementById('search');
+    const sortEl  = document.getElementById('sortBy'); 
 
     // Years
     const years = [...new Set(EVENTS.map(e => (e.date||"").slice(0,4)).filter(Boolean))].sort();
@@ -442,6 +520,9 @@ function rebuildCountriesLayer(visibleIsoSet, visibleNameSet) {
       const q = searchEl.value.trim().toLowerCase();
       const y = yearEl.value;
       const r = roleEl.value;
+      function newestYearOf(g){
+      return Math.max(...g.events.map(ev => Number((ev.date||"").slice(0,4)) || 0));
+    }
 
       const filtered = {};
       for (const key of Object.keys(grouped)) {
@@ -463,34 +544,73 @@ function rebuildCountriesLayer(visibleIsoSet, visibleNameSet) {
 
       // List
       const byCountry = {};
-      for (const key of Object.keys(filtered)) {
-        const g = filtered[key];
-        if (!byCountry[g.country]) byCountry[g.country] = [];
-        byCountry[g.country].push(g);
-      }
-      const countryNames = Object.keys(byCountry).sort((a,b)=>a.localeCompare(b));
+for (const key of Object.keys(filtered)) {
+  const g = filtered[key];
+  if (!byCountry[g.country]) byCountry[g.country] = [];
+  byCountry[g.country].push(g);
+}
 
-      listEl.innerHTML = countryNames.map(country => {
-        const cities = byCountry[country].sort((a,b)=>a.city.localeCompare(b.city))
-          .map(g => `
-            <div class="city">
-              <h4>
-                ${escapeHtml(g.city)}
-                <a class="focus" href="#" data-target="${cityKey(g)}" title="Show on map">focus</a>
-              </h4>
-              ${g.events.map(ev => `
-                <div class="event">
-                  <div><strong>${escapeHtml(ev.title)}</strong></div>
-                  <small>${escapeHtml(ev.role)} • ${escapeHtml(ev.date||'')}</small>
-                </div>
-              `).join("")}
-            </div>
-          `).join("");
+const mode = (sortEl && sortEl.value) || 'year-desc';
 
-        return `<div class="country">
-          <h3>${escapeHtml(country)}</h3>
-          ${cities}
-        </div>`;
+// country order
+let countryNames = Object.keys(byCountry);
+if (mode === 'country-asc' || mode === 'country-desc') {
+  countryNames.sort((a,b)=> a.localeCompare(b) * (mode==='country-asc' ? 1 : -1));
+} else if (mode.startsWith('year-')) {
+  // order countries by their newest city-year
+  countryNames.sort((a,b)=>{
+    const maxA = Math.max(...byCountry[a].map(newestYearOf));
+    const maxB = Math.max(...byCountry[b].map(newestYearOf));
+    return (mode==='year-desc' ? (maxB - maxA) : (maxA - maxB));
+  });
+} else {
+  // other modes: keep alpha by country
+  countryNames.sort((a,b)=> a.localeCompare(b));
+}
+
+listEl.innerHTML = countryNames.map(country => {
+  // city order
+  let cities = byCountry[country].slice();
+
+  if (mode.startsWith('year-')) {
+    cities.sort((a,b)=> (newestYearOf(b) - newestYearOf(a)) * (mode==='year-desc'?1:-1));
+  } else {
+    cities.sort((a,b)=> a.city.localeCompare(b.city));
+  }
+
+  const citiesHtml = cities.map(g => {
+    // event order inside a city
+    let evs = g.events.slice();
+    if (mode.startsWith('title-')) {
+      evs.sort((a,b)=> a.title.localeCompare(b.title) * (mode==='title-asc'?1:-1));
+    } else if (mode.startsWith('role-')) {
+      evs.sort((a,b)=> a.role.localeCompare(b.role) * (mode==='role-asc'?1:-1));
+    } else if (mode.startsWith('year-')) {
+      evs.sort((a,b)=> ((b.date||'').localeCompare(a.date||'')) * (mode==='year-desc'?1:-1));
+    } // else keep existing order
+
+    const evsHtml = evs.map(ev => `
+      <div class="event">
+        <div><strong>${escapeHtml(ev.title)}</strong></div>
+        <small>${escapeHtml(ev.role)} • ${escapeHtml(ev.date||'')}</small>
+      </div>
+    `).join("");
+
+    return `
+      <div class="city">
+        <h4>
+          ${escapeHtml(g.city)}
+          <a class="focus" href="#" data-target="${cityKey(g)}" title="Show on map">focus</a>
+        </h4>
+        ${evsHtml}
+      </div>
+    `;
+      }).join("");
+
+      return `<div class="country">
+        <h3>${escapeHtml(country)}</h3>
+        ${citiesHtml}
+      </div>`;
       }).join("");
 
       // Focus links — center marker and open popup without auto-pan
@@ -532,6 +652,7 @@ listEl.querySelectorAll('a.focus').forEach(a => {
     searchEl.addEventListener('input', renderList);
     yearEl.addEventListener('change', renderList);
     roleEl.addEventListener('change', renderList);
+    if (sortEl) sortEl.addEventListener('change', renderList);
     renderList();
   });
   </script>
