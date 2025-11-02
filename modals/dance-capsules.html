@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dance Capsules</title>
+
+<!-- Small reset so it looks consistent inside your iframe modal -->
+<style>
+  :root{
+    --bg:#0e0e0f; --panel:#121214; --muted:#9aa0a6; --text:#e6e6e6; --accent:#ffffff;
+  }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,sans-serif}
+  .dc-wrap{max-width:1400px;margin:0 auto;padding:28px}
+  .dc-title{font-family:"MD Tall","Bebas Neue",Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase;font-size:clamp(28px,3.2vw,48px);margin:0 0 18px}
+  .dc-sub{color:var(--muted);margin:0 0 28px}
+
+  /* Section heading */
+  .dc-h2{font-family:"MD Tall","Bebas Neue",Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase;
+         font-size:clamp(20px,2vw,28px);margin:32px 0 12px}
+
+  /* Responsive grid: 8–12-ish per row depending on width */
+  .dc-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:14px;
+  }
+
+  /* Card */
+  .dc-card{
+    background:var(--panel);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 1px 0 rgba(255,255,255,.03), 0 0 0 1px rgba(255,255,255,.02) inset;
+    transition:transform .15s ease, box-shadow .2s ease;
+    cursor:pointer;
+  }
+  .dc-card:focus-visible{outline:2px solid #6ea8fe; outline-offset:2px}
+  .dc-card:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  .dc-thumb{
+    width:100%; aspect-ratio:16/9; display:block; background:#222; object-fit:cover
+  }
+  .dc-title2{
+    font-size:13px; line-height:1.35; padding:10px 10px 12px 10px; color:var(--text)
+  }
+
+  /* Inner video lightbox (lives inside this document only) */
+  .dc-lightbox{
+    position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.72);
+    z-index:9999;
+  }
+  .dc-lightbox.is-open{display:grid}
+  .dc-player{
+    width:min(92vw, 1100px);
+    aspect-ratio:16/9;
+    background:#000; border-radius:12px; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,.6)
+  }
+  .dc-player iframe{width:100%; height:100%; border:0; display:block}
+  .dc-x{
+    position:absolute; top:14px; right:14px; width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,.12); color:#fff; display:grid; place-items:center; cursor:pointer;
+    backdrop-filter:blur(3px)
+  }
+  .dc-x:hover{background:rgba(255,255,255,.22)}
+</style>
+</head>
+<body>
+  <main class="dc-wrap" id="app">
+    <h1 class="dc-title">Dance Capsules</h1>
+    <p class="dc-sub">Short performances and practice clips by style. Click any tile to watch.</p>
+
+    <!-- Sections will be injected here -->
+  </main>
+
+  <!-- Inline video lightbox -->
+  <div class="dc-lightbox" id="lightbox" aria-hidden="true">
+    <button class="dc-x" id="lightboxClose" aria-label="Close video">✕</button>
+    <div class="dc-player" id="lightboxPlayer" role="dialog" aria-label="Video player"></div>
+  </div>
+
+<script>
+/* ===== 1) DATA: edit to your own =====
+   - key = style name
+   - id = YouTube video id (the string after v= in a youtu.be / watch URL)
+   - title = small caption
+*/
+const LIBRARY = {
+  "Salsa": [
+    { id:"dQw4w9WgXcQ", title:"Social demo — Copenhagen" },
+    { id:"9bZkp7q19f0", title:"Workshop snippet — turns" },
+    { id:"aqz-KE-bpKQ", title:"Shines practice 1" },
+    { id:"J---aiyznGQ", title:"Partnerwork combo A" },
+    { id:"ScMzIvxBSi4", title:"Footwork drills" },
+    { id:"ysz5S6PUM-U", title:"Social dance — festival" }
+  ],
+  "Bachata": [
+    { id:"hY7m5jjJ9mM", title:"Sensual basics — walk-through" },
+    { id:"6Dh-RL__uN4", title:"Isolations practice" },
+    { id:"Zi_XLOBDo_Y", title:"Partnerwork combo B" },
+    { id:"CevxZvSJLk8", title:"Musicality exercise" }
+  ],
+  "Contemporary": [
+    { id:"kXYiU_JCYtU", title:"Phrase — studio take" },
+    { id:"pRpeEdMmmQ0", title:"Improvisation task" },
+    { id:"60ItHLz5WEA", title:"Floorwork study" },
+    { id:"3JZ_D3ELwOQ", title:"Duo exploration" },
+    { id:"fRh_vgS2dFE", title:"Across-the-floor combo" }
+  ]
+};
+
+/* ===== 2) RENDER ===== */
+const app = document.getElementById('app');
+
+for (const [style, videos] of Object.entries(LIBRARY)) {
+  // Section header
+  const h2 = document.createElement('h2');
+  h2.className = 'dc-h2';
+  h2.textContent = style;
+  app.appendChild(h2);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'dc-grid';
+  app.appendChild(grid);
+
+  videos.forEach(v => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'dc-card';
+    card.dataset.vid = v.id;
+    card.setAttribute('aria-label', v.title);
+
+    const img = document.createElement('img');
+    // YouTube thumbnail
+    img.className = 'dc-thumb';
+    img.loading = 'lazy';
+    img.alt = v.title;
+    img.src = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
+
+    const caption = document.createElement('div');
+    caption.className = 'dc-title2';
+    caption.textContent = v.title;
+
+    card.append(img, caption);
+    grid.appendChild(card);
+  });
+}
+
+/* ===== 3) LIGHTBOX (opens above this page inside the iframe) ===== */
+const lb = document.getElementById('lightbox');
+const lbPlayer = document.getElementById('lightboxPlayer');
+const lbClose  = document.getElementById('lightboxClose');
+
+function openVideo(id){
+  lbPlayer.innerHTML = `
+    <iframe
+      src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1"
+      title="YouTube video"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+    ></iframe>`;
+  lb.classList.add('is-open');
+  lb.setAttribute('aria-hidden','false');
+  lbClose.focus({preventScroll:true});
+}
+
+function closeVideo(){
+  lb.classList.remove('is-open');
+  lb.setAttribute('aria-hidden','true');
+  lbPlayer.innerHTML = '';
+}
+
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.dc-card');
+  if (btn) { openVideo(btn.dataset.vid); }
+});
+
+lbClose.addEventListener('click', closeVideo);
+lb.addEventListener('click', (e)=>{ if (e.target === lb) closeVideo(); });
+document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeVideo(); });
+</script>
+</body>
+</html>
