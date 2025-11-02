@@ -404,6 +404,38 @@ function initAvailabilityWidgets(root) {
     if (!link) return;
     if (overlay.classList.contains('is-open')) closeModal();
   });
+  // Handle AJAX submit for any form inside the modal (works for injected fragments)
+  overlay.addEventListener('submit', async function (e) {
+    const form = e.target;
+    if (!form.matches('form[data-ajax="web3"]')) return;
+
+    e.preventDefault();
+
+    const sendBtn = form.querySelector('[type="submit"]');
+    const status  = form.querySelector('#collab-status, #form-status');
+
+    const original = sendBtn ? sendBtn.textContent : '';
+    if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Sending…'; }
+
+    try {
+      const res  = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+      const json = await res.json();
+      if (status) {
+        if (json.success) {
+          status.textContent = 'Thanks! Your message has been sent.';
+          status.style.color = '#9be0ff';
+          form.reset();
+        } else {
+          status.textContent = (json.message || 'Sorry, something went wrong. Please try again.');
+          status.style.color = '#ff6b6b';
+        }
+      }
+    } catch (_) {
+      if (status) { status.textContent = 'Network error. Please try again in a moment.'; status.style.color = '#ff6b6b'; }
+    } finally {
+      if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = original; }
+    }
+  });
 
   // Generic trigger: any element with data-modal or data-modal-url
   document.addEventListener('click', function (e) {
