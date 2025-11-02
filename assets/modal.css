@@ -104,6 +104,11 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
   display: none !important;
 }
 
+.lead-xl{
+  font-size: clamp(1.10rem, 2.1vw, 1.45rem);
+  line-height: 1.5;
+}
+
 /* Small phones: shave a tad more side padding */
 @media (max-width: 480px){
   .modal-panel{
@@ -281,6 +286,37 @@ button.primary {
   text-transform: none;
   letter-spacing: 0; /* <- removes that wide spacing */
   margin-bottom: 0.4em;
+}
+/* Bigger section heading specifically when we opt-in with .h3-xl */
+.h3-xl{
+  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+  line-height: 1.2;
+}
+
+/* Single-line scaling for the top slogan on very small screens */
+.tagline {
+  white-space: nowrap;              /* never wrap */
+}
+@media (max-width: 420px) {
+  .tagline {
+    font-size: clamp(12px, 4.2vw, 18px); /* scale down only on tiny widths */
+    letter-spacing: 0.02em;              /* a touch tighter so it fits */
+  }
+}
+@media (max-width: 360px) {
+  .tagline { font-size: clamp(15px, 4.8vw, 20px); }
+}
+
+/* Inline bracket note next to a heading */
+.note-inline{
+  margin-left: .5rem;
+  font-weight: 400;
+  font-size: .80rem;            /* keep smaller than the heading */
+  color: var(--muted);          /* same tone as other muted text */
+  white-space: nowrap;          /* avoid ugly wrapping next to the title */
+}
+@media (max-width: 480px){
+  .note-inline{ white-space: normal; } /* let it wrap on tiny phones */
 }
 
 /* Body text alignment and spacing consistency */
