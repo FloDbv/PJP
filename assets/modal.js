@@ -219,6 +219,19 @@ function initAvailabilityWidgets(root) {
     titleEl.textContent = titleText || 'Loading…';
     body.innerHTML = '<p class="section">Please wait…</p>';
     overlay.classList.add('is-open');
+    // Safari/iPad: force animation restart so panel never stays at opacity:0
+    const panel = overlay.querySelector('.modal-panel');
+    if (panel) {
+      panel.style.animation = 'none';
+      // trigger reflow
+      // eslint-disable-next-line no-unused-expressions
+      panel.offsetHeight;
+      panel.style.animation = '';
+    }
+    overlay.style.animation = 'none';
+    // eslint-disable-next-line no-unused-expressions
+    overlay.offsetHeight;
+    overlay.style.animation = '';
     document.documentElement.style.overflow = 'hidden';
 
     fetch(resolveUrl(slug), { cache: 'no-store' })
