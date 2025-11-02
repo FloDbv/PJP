@@ -1,6 +1,6 @@
 <!-- Title pulled into the modal header -->
 <div class="section">
-  <p>
+  <p class="lead-xl">
     Personal Training: Move with purpose, train with intention—let’s build strength, flexibility, and confidence that lasts beyond the gym.
   </p>
 <style>
@@ -15,7 +15,10 @@
 </style>
 
 <div class="section">
-  <h3>Fares & Bundles</h3>
+  <h3 class="h3-xl">
+    Fares & Bundles
+    <span class="note-inline" class="muted" style="color:#aab2c1;margin-top:6px">(contact me for prices in other currencies)</span>
+  </h3>
   <table class="table">
     <thead>
       <tr><th>Package</th><th>Length</th><th>What’s included</th><th>Price</th></tr>
@@ -53,7 +56,48 @@
       </tr>
     </tbody>
   </table>
-  <p class="muted" style="color:#aab2c1;margin-top:6px">Contact me for prices in other currencies.</p>
+  <!-- Mobile cards for PT plans (hidden on desktop; shown <= 540px) -->
+<div class="plans-cards" aria-hidden="true">
+  <article class="plan-card">
+    <h4 class="plan-title">Intro Session</h4>
+    <div class="plan-meta">60 min</div>
+    <p class="plan-includes">Assessment + custom plan</p>
+    <div class="plan-price"><strong>80 GEL / 25€</strong></div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Single Session</h4>
+    <div class="plan-meta">60 min</div>
+    <p class="plan-includes">Customizable upon request</p>
+    <div class="plan-price"><strong>70 GEL / 20€</strong></div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Hard-4</h4>
+    <div class="plan-meta">4 × 60 min</div>
+    <p class="plan-includes">Assessment + Personalized program + PT Focus</p>
+    <div class="plan-price">
+      <strong>220 GEL / 70€</strong> <span class="badge">save 20%</span>
+    </div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Hard-8</h4>
+    <div class="plan-meta">8 × 60 min</div>
+    <p class="plan-includes">Assessment + Periodized plan + PT Focus + video feedback</p>
+    <div class="plan-price">
+      <strong>400 GEL / 125€</strong> <span class="badge">save 28%</span>
+    </div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Duet Add-on</h4>
+    <div class="plan-meta">per session</div>
+    <p class="plan-includes">Train with a partner (max 2)</p>
+    <div class="plan-price"><strong>+20 GEL / 6€</strong></div>
+  </article>
+</div>
+
 </div>
 <div class="section">
   <h3>Ready to start? Use the form below—I'll confirm by email within 24 hours.</h3>
