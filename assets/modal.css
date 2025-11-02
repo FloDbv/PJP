@@ -83,6 +83,9 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
 }
 .modal-close:hover { background: #151922; }
 
+.modal-panel .modal-close { outline: none; -webkit-tap-highlight-color: transparent; }
+.modal-panel .modal-close:focus { outline: none; box-shadow: 0 0 0 2px rgba(155,224,255,.35); }
+
 .modal-title,
 .modal-body{
   margin: 0; padding: 0;
@@ -488,6 +491,11 @@ button.link:hover {
 .modal-panel {
   opacity: 0;
   transform: var(--enter-transform, translateY(10px));
+  animation: fadeSlideUpModal 0.6s ease forwards;
+}
+/* Only animate when open */
+.modal-overlay.is-open,
+.modal-overlay.is-open .modal-panel {
   animation: fadeSlideUpModal 0.6s ease forwards;
 }
 /* Keep XL panel horizontally centered even while animating */
