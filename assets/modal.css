@@ -116,6 +116,24 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
     max-height: 92vh;
   }
 }
+/* Ultra-narrow phones (iPhone SE/older Android widths) */
+@media (max-width: 360px){
+  .modal-panel{
+    width: calc(100% - 12px);   /* use more of the screen */
+  }
+}
+/* Ensure long table text wraps instead of overflowing */
+.table th, .table td { 
+  word-break: break-word; 
+}
+@media (max-width: 420px){
+  .table { font-size: 13px; }
+  .table th, .table td { padding: 8px 6px; }
+}
+@media (max-width: 360px){
+  .table { font-size: 12px; }
+  .table th, .table td { padding: 7px 6px; }
+}
 
 .section {
   background: #0a0d12; border: 1px solid var(--panel-border);
@@ -132,6 +150,46 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
 }
 .table th { color: var(--muted); font-weight: 600; }
 .table tr:last-child td { border-bottom: none; }
+
+/* -- Mobile “plan cards” for PT (stacked layout) ------------------- */
+.plans-cards { display: none; }                 /* desktop: off */
+
+@media (max-width: 540px){
+  /* Hide the wide table and show cards instead */
+  .section .table { display: none; }
+  .plans-cards { 
+    display: grid; 
+    gap: 12px; 
+    margin-top: 6px;
+  }
+
+  .plan-card{
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .plan-title{
+    margin: 0 0 4px 0;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .plan-meta{
+    color: var(--muted);
+    font-size: .95rem;
+    margin-bottom: 6px;
+  }
+  .plan-includes{
+    margin: 0 0 8px 0;
+    line-height: 1.45;
+  }
+  .plan-price{
+    display: flex; align-items: center; gap: 8px;
+    font-size: 1.05rem;
+  }
+  .plan-price .badge{ font-size: .75rem; }
+}
+
 
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #18202d; color: var(--ink); font-size: 12px; }
 
