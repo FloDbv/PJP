@@ -75,11 +75,39 @@ h1, h2, h3, h4,
     /* ===== Layout ===== */
     .content { display: grid; grid-template-columns: 380px 1fr; min-height: 70vh; }
     @media (max-width: 900px){
-  /* When the map is hidden (default on mobile), use a single row = full-width list */
-  .content { grid-template-columns: 1fr; grid-template-rows: auto; }
+  /* Default mobile: list only, one row */
+  .content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;                 /* no fixed height until map is shown */
+  }
 
-  /* When the user taps “Show map”, add a second row for the map */
-  body.show-map .content { grid-template-rows: auto 48vh; }  /* adjust 48vh to taste */
+  /* When user taps “Show map”: lock the page and split the grid into
+     top (list) + bottom (map). Prevent the grid itself from scrolling. */
+  body.show-map {
+    height: 100vh;
+    overflow: hidden;             /* page cannot scroll */
+  }
+  body.show-map .content {
+    height: 100vh;
+    grid-template-rows: auto 52vh;/* map row ~half screen */
+    overflow: hidden;             /* grid cannot scroll either */
+  }
+  @media (max-width: 900px){
+  /* Also lock the root scroller so iOS can't scroll the page
+     when the Leaflet zoom controls get focus */
+  html.lock-map,
+  html.lock-map body {
+    height: 100vh;
+    overflow: hidden;
+  }
+}
+
+  /* Only the left panel (aside) is scrollable */
+  body.show-map aside {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
     aside {
@@ -106,8 +134,14 @@ h1, h2, h3, h4,
     .event { background: #0f1116; border: 1px solid #2d313b; border-radius: 10px; padding: 8px 10px; margin: 6px 0; }
     .event small { color: var(--muted); }
 
-    #map { width: 100%; height: calc(100vh - 64px); }
-    @media (max-width: 900px) { #map { height: 100%; } }
+    #map { width: 100%; }                 /* no fixed height by default */
+    @media (min-width: 901px) {
+    #map { height: calc(100vh - 64px); }/* desktop keeps your original height */
+    }
+    @media (max-width: 900px) {
+      #map { height: 100% !important; }   /* strictly follow grid row height on mobile */
+    }
+
 
     /* Mobile: hide map by default, show via button */
     @media (max-width: 900px){
@@ -166,6 +200,21 @@ h1, h2, h3, h4,
   html.is-embedded, 
   html.is-embedded body,
   html.is-embedded body.site { height: 100%; margin: 0 !important; min-height: 100vh; }
+  /* When the map is shown on mobile embed, lock the layout to the viewport,
+   and let only the left panel scroll. This mirrors your non-embed rules. */
+@media (max-width: 900px){
+  html.is-embedded body.show-map       { height: 100vh; overflow: hidden; }
+  html.is-embedded body.show-map .content {
+    height: 100vh;
+    grid-template-rows: auto 52vh;
+    overflow: hidden;
+  }
+  html.is-embedded body.show-map aside {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 
   /* Hide outer site chrome when embedded */
   html.is-embedded .topbar,
@@ -175,7 +224,15 @@ h1, h2, h3, h4,
 
   /* Our layout on this page */
   html.is-embedded .content { min-height: 100vh; }   /* the grid (sidebar + map) */
-  html.is-embedded #map     { height: 100vh !important; }  /* override the -64px height */
+/* Desktop embed: map can take the full iframe height */
+@media (min-width: 901px){
+  html.is-embedded #map { height: 100vh !important; }
+}
+
+/* Mobile embed: map must follow the grid row height (52vh) */
+@media (max-width: 900px){
+  html.is-embedded #map { height: 100% !important; }
+}
 
   /* Keep the small page title above the filters VISIBLE */
   html.is-embedded header.section { display: block !important; }
@@ -348,35 +405,70 @@ function nameSetFromGroups(groupsObj) {
 
     // --- Map ---
     const map = L.map('map', { worldCopyJump: true, minZoom: 2 }).setView([20, 10], 2);
-    // --- Make sure the map sizes correctly when shown inside a modal/iframe
-    // Mobile toggle for the map
+  
+    // Mobile map toggle + auto-focus on the top country (mobile only)
 const toggleBtn = document.getElementById('toggleMap');
 if (toggleBtn) {
   const mq = window.matchMedia('(max-width: 900px)');
 
+  // Read current UI filters (same fields used by renderList)
+  function currentFilters(){
+    const y = (document.getElementById('yearFilter')?.value || '').trim();
+    const r = (document.getElementById('roleFilter')?.value || '').trim().toLowerCase();
+    const q = (document.getElementById('search')?.value || '').trim().toLowerCase();
+    return { y, r, q };
+  }
+  function filteredByUI(){
+    const { y, r, q } = currentFilters();
+    return EVENTS.filter(ev =>
+      (!y || ev.date === y) &&
+      (!r || ev.role.toLowerCase().includes(r)) &&
+      (!q || ev.title.toLowerCase().includes(q) || ev.city.toLowerCase().includes(q))
+    );
+  }
+    function focusMapOnTopCountry(){
+    const firstCountryEl = document.querySelector('#list .country h3');
+    if (!firstCountryEl) return;
+
+    const country = firstCountryEl.textContent.trim();
+    const evs = filteredByUI().filter(ev => ev.country === country && ev.lat && ev.lng);
+    if (!evs.length) return;
+
+    const bounds = L.latLngBounds(evs.map(ev => [ev.lat, ev.lng]));
+    const center = bounds.getCenter();
+    map.setView(center, 2, { animate: true });   // <- fixed zoom like your example
+  }
+
   function initMobileState(){
     if (mq.matches) {
-      document.body.classList.remove('show-map');         // default hidden
+      document.body.classList.remove('show-map');   // hidden by default on mobile
       toggleBtn.textContent = 'Show map';
       toggleBtn.setAttribute('aria-expanded','false');
     } else {
-      document.body.classList.add('show-map');            // always visible on desktop
+      document.body.classList.add('show-map');      // always visible on desktop
       toggleBtn.textContent = 'Hide map';
       toggleBtn.setAttribute('aria-expanded','true');
     }
-    try { setTimeout(()=>map.invalidateSize(true), 150); } catch {}
-  }
-  initMobileState();
-  mq.addEventListener('change', initMobileState);
+    setTimeout(()=>map.invalidateSize(true), 150);
+  }  
+    toggleBtn.addEventListener('click', () => {
+  const open = !document.body.classList.contains('show-map');
+  document.body.classList.toggle('show-map', open);
 
-  toggleBtn.addEventListener('click', () => {
-    const open = !document.body.classList.contains('show-map');
-    document.body.classList.toggle('show-map', open);
-    toggleBtn.textContent = open ? 'Hide map' : 'Show map';
-    toggleBtn.setAttribute('aria-expanded', String(open));
-    // Let Leaflet recompute tiles whenever we reveal the map
-    try { setTimeout(()=>map.invalidateSize(true), 150); } catch {}
-  });
+  // NEW: lock/unlock the root scroller on mobile
+  document.documentElement.classList.toggle('lock-map', open);
+
+  toggleBtn.textContent = open ? 'Hide map' : 'Show map';
+  toggleBtn.setAttribute('aria-expanded', String(open));
+
+  if (open) {
+    setTimeout(() => {
+      map.invalidateSize(true);
+      focusMapOnTopCountry();  // (keeps your zoom=2 on purpose)
+    }, 180);
+  }
+});
+
 }
 
     function kickMapSize() {
