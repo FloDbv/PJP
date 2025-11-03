@@ -184,8 +184,14 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
     line-height: 1.45;
   }
   .plan-price{
-    display: flex; align-items: center; gap: 8px;
+    display: flex;
+    flex-direction: column;    /* stack text and badge vertically */
+    align-items: center;       /* center horizontally */
+    justify-content: center;   /* center vertically if more height */
+    text-align: center;
+    gap: 4px;
     font-size: 1.05rem;
+    margin-top: 6px;
   }
   .plan-price .badge{ font-size: .75rem; }
 }
@@ -720,6 +726,13 @@ button.link:hover {
     font-size: 1rem;
     border-radius: 10px;
   }
+    /* Correction: don’t apply tall height to policy checkbox */
+  #pt-request .agree-policy input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    min-height: 0;
+  }
+
   #pt-request textarea { min-height: 120px; }
 
   /* availability wizard block: give breathing room */
@@ -737,13 +750,20 @@ button.link:hover {
     font-size: 1rem;
   }
 
-  /* validation hints */
-  #pt-request input:invalid,
-  #pt-request select:invalid,
-  #pt-request textarea:invalid {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
+  /* Only show an outline when the invalid control is actually focused */
+#pt-request input:invalid,
+#pt-request select:invalid,
+#pt-request textarea:invalid {
+  outline: none;
+}
+
+#pt-request input:invalid:focus-visible,
+#pt-request select:invalid:focus-visible,
+#pt-request textarea:invalid:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 }
 /* Hide the modal title/header bar globally */
 .modal-panel .modal-header,
