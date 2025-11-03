@@ -1,9 +1,24 @@
-<p class="section">
+<!-- Title pulled into the modal header -->
+<div class="section">
+  <p class="lead-xl">
   Solo / Group Lessons: From foundation to freestyle, each class is a space to grow, express, and connect. Technique, groove, and freedom—learn, move, and belong in every step.
 </p>
 
-<h3>Packages</h3> 
-<p class="muted" style="color:#aab2c1;margin-top:6px">Contact me for prices in other currencies.</p>
+<style>
+@media (max-width: 768px) {
+  form#pt-request input,
+  form#pt-request select,
+  form#pt-request textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+</style>
+<div class="section">
+  <h3 class="h3-xl">
+    Packages
+    <span class="note-inline" class="muted" style="color:#aab2c1;margin-top:6px">(contact me for prices in other currencies)</span>
+  </h3>
 <table class="table">
   <thead>
     <tr><th>Option</th><th>Length</th><th>People</th><th>Rate</th></tr>
@@ -15,12 +30,45 @@
     <tr><td>Studio Surcharge</td><td>—</td><td>—</td><td>To be covered by clients (studio suggestions available)</td></tr>
   </tbody>
 </table>
+</div>
+<!-- Mobile cards for Dance Lessons (hidden on desktop; shown <= 540px) -->
+<div class="plans-cards" aria-hidden="true">
+  <article class="plan-card">
+    <h4 class="plan-title">Private</h4>
+    <div class="plan-meta">60 min • 1 person</div>
+    <p class="plan-includes">—</p>
+    <div class="plan-price"><strong>250 GEL / 80€</strong></div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Duo</h4>
+    <div class="plan-meta">60 min • 2 people</div>
+    <p class="plan-includes">—</p>
+    <div class="plan-price"><strong>300 GEL / 95€</strong></div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Small Group</h4>
+    <div class="plan-meta">60 min • 3–6 people</div>
+    <p class="plan-includes">—</p>
+    <div class="plan-price"><strong>370–470 GEL / 120–150€</strong></div>
+  </article>
+
+  <article class="plan-card">
+    <h4 class="plan-title">Studio Surcharge</h4>
+    <div class="plan-meta">—</div>
+    <p class="plan-includes">To be covered by clients (studio suggestions available)</p>
+    <div class="plan-price"><strong>—</strong></div>
+  </article>
+</div>
 
 <div class="section">
   <h3>Ready to start? Use the form below—I'll confirm by email within 24 hours.</h3>
   <form id="dancelesson-request"
       action="https://api.web3forms.com/submit"   
-      method="POST">                               
+      method="POST"
+      data-ajax="web3"> 
+                               
 
   <!-- Web3Forms config -->
   <input type="hidden" name="access_key" value="06d65f42-5cf5-403d-99cd-2e1d3d2e5f67">
@@ -82,7 +130,7 @@
 
     <div class="actions">
       <button type="submit" class="primary">Send Request</button>
-      <p id="dancelesson-status" class="muted" aria-live="polite"></p> 
+      <p id="form-status" class="muted" aria-live="polite"></p> 
     </div>
   </div>
 
