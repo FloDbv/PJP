@@ -135,6 +135,33 @@ h1, h2, h3, h4,
     .event small { color: var(--muted); }
 
     #map { width: 100%; }                 /* no fixed height by default */
+    /* Make the map a positioning context */
+#map { position: relative; }
+
+/* Desktop-only close button over the map (matches your modal look) */
+.map-close{
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  border: 1px solid #343945;
+  background: rgba(0,0,0,.55);
+  color: var(--ink);
+  font: 700 18px/1 system-ui, -apple-system, Segoe UI, Roboto, "Aileron", sans-serif;
+  cursor: pointer;
+  z-index: 1000;             /* above Leaflet controls */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.map-close:hover,
+.map-close:focus{ background: rgba(0,0,0,.75); outline: none; }
+
+/* Hide this button on mobile; you already use the “Show/Hide map” toggle there */
+@media (max-width: 900px){
+  .map-close{ display: none; }
+}
+
     @media (min-width: 901px) {
     #map { height: calc(100vh - 64px); }/* desktop keeps your original height */
     }
@@ -163,17 +190,49 @@ h1, h2, h3, h4,
 
     .leaflet-popup-content { margin: 8px; }
     .popup-title { font-weight: 700; margin-bottom: 4px; }
-    .popup-event {
+    /* Keep title to two lines so item height stays consistent */
+    .popup-title{
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+/* ≤480px: about 3 cards visible, then scroll */
+@media (max-width: 480px){
+  .popup-list { max-height: calc(var(--popup-card-h) * 3 + 12px); }
+}
+
+/* ≤380px: about 2 cards visible, then scroll */
+@media (max-width: 380px){
+  .popup-list { max-height: calc(var(--popup-card-h) * 2 + 8px); }
+}
+
+
+/* One card ≈ fixed height so we can cap by “number of cards”. */
+:root { --popup-card-h: 74px; }   /* tweak this later if you like */
+
+.popup-event {
   margin: 6px 0;
-  padding: 6px;
+  padding: 8px 10px;
   border-radius: 8px;
   background: #0f1116;
   border: 1px solid #2a2e37;
-  color: #fff;              /* <-- makes all text white */
+  color: #fff;
+  min-height: var(--popup-card-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+.popup-event small { color: #ccc; }
 
-.popup-event small {
-  color: #ccc;              /* optional: slightly dim the small text */
+.leaflet-popup-content-wrapper { max-width: 360px; }
+.leaflet-popup-content { margin: 8px 10px; }
+
+/* Base: allow scroll and keep the list compact */
+.popup-list {
+  overflow: auto;
+  padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
     /* Country highlight styles */
@@ -288,7 +347,10 @@ h1, h2, h3, h4,
       <div id="list"></div>
     </aside>
 
-    <main id="map" aria-label="World map of events"></main>
+    <main id="map" aria-label="World map of events">
+  <button id="ehClose" class="map-close" type="button" aria-label="Close map">✕</button>
+</main>
+
   </div>
 
   <div class="site-footer">
@@ -318,7 +380,7 @@ h1, h2, h3, h4,
       { country:"Poland", city:"Bukowina Tatrzańska", lat:49.3240, lng:20.1078, title:"Summer Summit — West Coast Swing (Level 5)", role:"Attended", date:"2023" },
       { country:"Poland", city:"Bukowina Tatrzańska", lat:49.3240, lng:20.1078, title:"4 Days Intensive — West Coast Swing (Fitness Instructor)", role:"Taught", date:"2023" },
       { country:"Sweden", city:"Stockholm", lat:59.3293, lng:18.0686, title:"Uptown Swing — West Coast Swing (Intermediate J&J)", role:"Competed", date:"2023" },
-      { country:"Netherlands", city:"Amsterdam", lat:52.3676, lng:4.9041, title:"Viva Kizomba Congress — Kizomba", role:"", date:"2023" },
+      { country:"Netherlands", city:"Amsterdam", lat:52.3676, lng:4.9041, title:"Viva Kizomba Congress — Kizomba", role:"Attended", date:"2023" },
       { country:"Denmark", city:"Bosei Sports High School", lat:55.13264412398683, lng:12.008772543710773, title:"Cuban Salsa Summer Camp — Salsa, Bachata (Rueda Instructor)", role:"Taught", date:"2023" },
       { country:"Malaysia", city:"Kuala Lumpur", lat:3.1390, lng:101.6869, title:"Afro Latin Festival Asia — Salsa, Bachata", role:"Attended", date:"2023" },
       { country:"Malaysia", city:"Kuala Lumpur", lat:3.1390, lng:101.6869, title:"Rueda International Flashmob Day — Rueda, Cuban Salsa", role:"Taught", date:"2023" },
@@ -405,7 +467,20 @@ function nameSetFromGroups(groupsObj) {
 
     // --- Map ---
     const map = L.map('map', { worldCopyJump: true, minZoom: 2 }).setView([20, 10], 2);
-  
+  // Close button inside the iframe → ask parent page to close the modal
+const ehCloseBtn = document.getElementById('ehClose');
+if (ehCloseBtn){
+  ehCloseBtn.addEventListener('click', () => {
+    // tell the parent to close the overlay/modal
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'eh-close' }, '*');
+    } else {
+      // fallback if opened as a full page
+      history.back();
+    }
+  });
+}
+
     // Mobile map toggle + auto-focus on the top country (mobile only)
 const toggleBtn = document.getElementById('toggleMap');
 if (toggleBtn) {
@@ -503,7 +578,15 @@ document.addEventListener('visibilitychange', () => {
     Object.keys(grouped).forEach(key => {
       const g = grouped[key];
       const m = L.marker([g.lat, g.lng], { title: `${g.city}, ${g.country}` });
-      m.bindPopup(makePopup(g), { maxWidth: 320 });
+      m.bindPopup(makePopup(g), {
+  maxWidth: 360,
+  maxHeight: 480,                 // extra safety; CSS is doing the main work
+  autoPan: true,
+  keepInView: true,
+  autoPanPaddingTopLeft: [8, 80], // leave room for the header/filters
+  autoPanPaddingBottomRight: [8, 140]
+});
+
       cluster.addLayer(m);
       cityIndex[key] = m;
     });
@@ -567,20 +650,27 @@ function rebuildCountriesLayer(visibleIsoSet, visibleNameSet) {
   countriesLayer.bringToBack();
 }
 
-    function makePopup(group) {
-      const eventsHtml = group.events
-        .sort((a,b) => (a.date||'').localeCompare(b.date||''))
-        .map(ev => `
-          <div class="popup-event">
-            <div class="popup-title">${escapeHtml(ev.title)}</div>
-            <small>${escapeHtml(ev.role)} • ${escapeHtml(ev.date || '')}</small>
-          </div>
-        `).join("");
-      return `<div>
-        <div><strong>${escapeHtml(group.city)}</strong>, ${escapeHtml(group.country)}</div>
+function makePopup(group) {
+  const sorted = group.events
+    .slice()
+    .sort((a,b) => (a.date||'').localeCompare(b.date||''));
+
+  const eventsHtml = sorted.map(ev => `
+    <div class="popup-event">
+      <div class="popup-title">${escapeHtml(ev.title)}</div>
+      <small>${escapeHtml(ev.role)} • ${escapeHtml(ev.date || '')}</small>
+    </div>
+  `).join("");
+
+  return `
+    <div>
+      <div><strong>${escapeHtml(group.city)}</strong>, ${escapeHtml(group.country)}</div>
+      <div class="popup-list">
         ${eventsHtml}
-      </div>`;
-    }
+      </div>
+    </div>
+  `;
+}
 
     function fitToMarkers() {
       const layers = cluster.getLayers();
