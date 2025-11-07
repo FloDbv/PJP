@@ -614,7 +614,7 @@ h2,
 .mobile-fixed-nav {
   position: fixed;
   left: 0; right: 0; bottom: 0;
-  z-index: 1201;                 /* higher than modal overlay (1000) */
+  z-index: 6000;                 /* higher than modal overlay (1000) */
   display: none;                 /* only show on mobile */
   background: rgba(0,0,0,.90);
   backdrop-filter: saturate(180%) blur(8px);
@@ -969,15 +969,23 @@ function updateDots() {
 
     // Intercept clicks on internal anchors in header and footer
     document.addEventListener('click', function(e){
-      var a = e.target.closest('a[href^="#"]');
-      if (!a) return;
-      var id = a.getAttribute('href').slice(1);
-      if (!id) return;
-      var target = document.getElementById(id);
-      if (!target) return;
-      e.preventDefault();
-      smoothScrollTo(id);
-    });
+  var a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  var id = a.getAttribute('href').slice(1);
+  if (!id) return;
+  var target = document.getElementById(id);
+  if (!target) return;
+
+  e.preventDefault();
+
+  // NEW — close any open modal (works for fragments + iframe XL)
+  var overlay = document.querySelector('.modal-overlay.is-open');
+  if (overlay) {
+    var btn = overlay.querySelector('.modal-close');
+    if (btn) btn.click();
+  }
+  smoothScrollTo(id);
+});
   })();
 
   </script>
@@ -1020,33 +1028,35 @@ function updateDots() {
 
 <script>
   (function () {
+    // Prevent duplicate binding if scripts run more than once
+    if (window.__PJP_CONTACT_BOUND__) return;
+    window.__PJP_CONTACT_BOUND__ = true;
+
     const form = document.getElementById('contact-form');
     const status = document.getElementById('form-status');
     const sendBtn = document.getElementById('send-btn');
-
     if (!form) return;
+
+    // Per-submit guard (prevents double-submit via Enter+Click, etc.)
+    let sending = false;
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
+      if (sending) return;        // <-- hard stop
+      sending = true;
 
-      // Disable button + show feedback
       const original = sendBtn.textContent;
       sendBtn.disabled = true;
       sendBtn.textContent = 'Sending…';
 
-      // Build the payload
-      const formData = new FormData(form);
-
       try {
-        const res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: formData
-        });
+        const formData = new FormData(form);
+        const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData });
         const json = await res.json();
 
         if (json.success) {
           status.textContent = 'Thanks! Your message has been sent.';
-          status.style.color = '#9be0ff'; 
+          status.style.color = '#9be0ff';
           form.reset();
         } else {
           status.textContent = (json.message || 'Sorry, something went wrong. Please try again.');
@@ -1056,6 +1066,7 @@ function updateDots() {
         status.textContent = 'Network error. Please try again in a moment.';
         status.style.color = '#ff6b6b';
       } finally {
+        sending = false;           // <-- release the lock
         sendBtn.disabled = false;
         sendBtn.textContent = original;
       }
