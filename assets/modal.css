@@ -1,3 +1,5 @@
+/* TODO post-launch: run CSS Coverage and prune unused selectors.
+   Scope to: overlay/panel, .section, .table, .btn, forms, chips/badges, XL iframe. */
 /* Utility: hide anything with .is-hidden */
 .is-hidden { display: none !important; }
 /* ===== Global font: Aileron for all modal text ===== */
@@ -110,7 +112,7 @@ label, input, select, textarea, button { font-size: var(--font-size-body); }
 /* Add vertical padding inside the modal body so the ✕ doesn’t overlap text */
 .modal-panel .modal-body .section,
 .modal-panel .modal-body > div {
-  padding-top: 15px;      /* adjust this if you want more or less space */
+  padding-top: 20px;      /* adjust this if you want more or less space */
   padding-left: 15px;
   padding-right: 15px;
 }
@@ -338,11 +340,37 @@ button.primary {
   cursor: pointer;
 }
 
-.agree-policy input[type="checkbox"] {
+.agree-policy input[type="checkbox"]{
   width: 16px;
   height: 16px;
-  accent-color: #9be0ff; 
+  min-width: 16px;         /* keep it from shrinking on tiny phones */
+  flex: 0 0 16px;          /* fixes flex-basis so it never takes a full line */
+  display: inline-block;   /* belt-and-suspenders against blocky inputs */
+  margin: 0;               /* kill any UA default margin */
+  padding: 0;              /* ensure no extra space is counted */
+  box-sizing: content-box; /* don’t inherit text-field sizing */
+  appearance: auto;        /* avoid odd iOS scaling */
+  -webkit-appearance: checkbox;
+  accent-color: #9be0ff;
 }
+/* keep the checkbox + text on ONE line and shrink-wrap to content */
+.agree-policy{
+  display: inline-flex;     /* was: flex — shrink-wraps the label to its contents */
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  flex-wrap: nowrap;        /* never wrap to a 2nd row */
+  white-space: nowrap;      /* force one-line */
+}
+
+/* let the sentence elide instead of wrapping when space is tiny */
+.agree-policy > span{
+  min-width: 0;             /* allow flexbox to actually shrink the text */
+  overflow: hidden;         
+  text-overflow: ellipsis;  /* “I agree to the policies…” stays one line */
+}
+
 /* ===== TYPOGRAPHY OVERRIDES ===== */
 
 /* Apply Aileron to absolutely all headings inside modals */
@@ -743,6 +771,11 @@ button.link:hover {
     height: 16px;
     min-height: 0;
   }
+  #dancelesson-request .agree-policy input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+}
 
   #pt-request textarea { min-height: 120px; }
 
@@ -908,4 +941,60 @@ button.link:hover {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+/* Keep vertical scroll, allow horizontal scroll if content needs it */
+.modal-panel{
+  display: flex;
+  flex-direction: column;
+  /* no overflow rule here */
+}
+.modal-head{ flex: 0 0 auto; }
+#modal-body{
+  flex: 1 1 auto;
+  overflow-y: auto;   /* vertical scrollbar ON */
+  overflow-x: auto;   /* horizontal scrollbar ALLOWED */
+}
+@media (max-width: 640px){
+  .section ul {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+  }
+  .section ul li {
+    padding-left: 0;
+    text-indent: 0;
+  }
+}
+/* Nudge close button left so it doesn't kiss the scrollbar */
+.modal-panel .modal-close { right: 22px; }   /* was 10px */
+.mod-size-xl .modal-close { right: 16px; }   /* keep XL iframe consistent */
+/* Switch policy blocks by viewport */
+@media (min-width: 769px) { /* desktop */
+  .policies-mobile { display: none; }
+}
+@media (max-width: 768px) { /* mobile */
+  .policies-desktop { display: none; }
+}
+/* Desktop: PT — span both columns and center */
+@media (min-width: 769px){
+  #pt-request .form-grid > .actions {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+}
+
+/* Desktop: DL — handle both cases (direct grid child and fallback wrapper) */
+@media (min-width: 769px){
+  /* preferred: when .actions is a direct child of .form-grid */
+  #dancelesson-request .form-grid > .actions {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+  /* fallback: if .actions is NOT a direct child of .form-grid */
+  #dancelesson-request .actions {
+    width: 100%;
+    display: flex;            /* ensure it's a flex row we can center */
+    justify-content: center;  /* center the button within whatever container it sits in */
+    justify-self: center;     /* if it's a grid item higher up, center that item itself */
+  }
 }
