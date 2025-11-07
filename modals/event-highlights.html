@@ -766,30 +766,50 @@ listEl.innerHTML = countryNames.map(country => {
       </div>`;
       }).join("");
 
-      // Focus links — center marker and open popup without auto-pan
-listEl.querySelectorAll('a.focus').forEach(a => {
-  a.addEventListener('click', (e) => {
-    e.preventDefault();
-    const key = a.getAttribute('data-target');
-    const marker = cityIndex[key];
-    if (!marker) return;
+  // Focus links — center marker and open popup (works with clusters)
+  listEl.querySelectorAll('a.focus').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const key    = a.getAttribute('data-target');
+      const marker = cityIndex[key];
+      if (!marker) return;
 
-    const latlng = marker.getLatLng();
+      // What to do once the marker is guaranteed to be visible
+      const centerAndOpen = () => {
+        const latlng = marker.getLatLng();
+        const targetZoom = Math.max(map.getZoom(), 7);
+        map.setView(latlng, targetZoom, { animate: true });
 
-    // 1) Center the map on the marker (choose a zoom that feels right)
-    const targetZoom = Math.max(map.getZoom(), 7);
-    map.setView(latlng, targetZoom, { animate: true });
+        const popup = marker.getPopup();
+        if (popup) {
+          const prev = popup.options.autoPan;
+          popup.options.autoPan = false;
+          marker.openPopup();
+          popup.options.autoPan = prev;
+        }
+      };
 
-    // 2) Open the popup without letting Leaflet auto-pan it away from center
-    const popup = marker.getPopup();
-    if (popup) {
-      const prev = popup.options.autoPan;
-      popup.options.autoPan = false;   // disable autopan for this open
-      marker.openPopup();
-      popup.options.autoPan = prev;    // restore original behavior
-    }
+      // If we’re on small screens and the map is hidden, reveal it first
+      const mq = window.matchMedia('(max-width: 900px)');
+      if (mq.matches && !document.body.classList.contains('show-map')) {
+        document.body.classList.add('show-map');
+        document.documentElement.classList.add('lock-map');
+        const toggleBtn = document.getElementById('toggleMap');
+        if (toggleBtn) {
+          toggleBtn.textContent = 'Hide map';
+          toggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        setTimeout(() => { try { map.invalidateSize(true); } catch {} 
+          // Ensure cluster expands to this marker, then open
+          cluster.zoomToShowLayer(marker, centerAndOpen);
+        }, 180);
+        return;
+      }
+
+      // Desktop (or map already visible on mobile):
+      cluster.zoomToShowLayer(marker, centerAndOpen);
+    });
   });
-});
 
       // Update exact-country highlights
       const isoFiltered  = isoSetFromGroups(filtered);
