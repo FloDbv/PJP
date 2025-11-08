@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Priscilla Josh — Mobile Page</title>
+  <link rel="stylesheet" href="../assets/modal.css">
+</head>
+<body class="page">
+  <div class="topbar">
+    <a href="/index.html#services">← Back to Services</a>
+  </div>
+<body class="page">
+<div class="section section--padded">   <!-- NEW wrapper as first child -->
+  <h4>Dedicated page coming soon — contact me directly for further information.</h4>
+  <div class="contact-wrap">
+        <div class="contact-wrap">
+          <form id="choreo-form" class="contact-form"
+      action="https://api.web3forms.com/submit"
+      method="POST"
+      data-ajax="web3">
+  <!-- REQUIRED: Web3Forms access key -->
+  <input type="hidden" name="access_key" value="06d65f42-5cf5-403d-99cd-2e1d3d2e5f67">
+
+  <!-- Optional but recommended -->
+  <input type="hidden" name="from_name" value="Priscilla Josh — Portfolio">
+  <input type="hidden" name="subject" value="Choreography message">
+  <!-- After a successful submit, stay on page (AJAX below). If you prefer a redirect, uncomment the next line and set your URL -->
+  <!-- <input type="hidden" name="redirect" value="https://your-domain.com/?sent=1#contact"> -->
+
+  <!-- Honeypot: traps bots -->
+  <input type="checkbox" name="botcheck" class="hidden" style="display:none !important">
+
+  <!-- Your visible fields (keep your current classes/labels) -->
+  <label for="name">Name</label>
+  <input id="name" name="name" type="text" placeholder="Your name" required>
+
+  <label for="email">Email</label>
+  <input id="email" name="email" type="email" placeholder="you@example.com" data-web3forms-replyto="true" required>
+
+  <label for="message">Message</label>
+  <textarea id="message" name="message" rows="6" placeholder="Tell me a bit about your project…" required></textarea>
+
+  <button type="submit" class="btn btn-green" id="send-btn">Send Message</button>
+
+  <!-- Small status line (shown by the JS below) -->
+  <p id="form-status" style="margin-top:.75rem; opacity:.9;"></p>
+</form>
+
+
+          <div class="contact-info">
+            <p class="badge">
+              <span class="icon">✉</span>
+              <a href="mailto:tanzpriscilla@gmail.com">tanzpriscilla@gmail.com</a>
+            </p>
+
+            <!-- no phone / no street address / no studio hours -->
+
+            <p class="badge">
+              <span class="icon">📍</span>
+              Main location: Tbilisi, Georgia
+            </p>
+            <p class="badge">
+              <span class="icon">✈</span>
+              Regularly in Kuala Lumpur and Brussels
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+    <!-- Modal CSS/JS (inside the document, once) -->
+  <link rel="stylesheet" href="/assets/modal.css">
+  <script src="/assets/modal.js" defer></script>
+
+  <script>
+  // Robust blur-up: works for cached images, doesn't override eager/lazy, and fails safe on error
+  (function () {
+    const imgs = document.querySelectorAll('img.service-thumb, img.portfolio-thumb');
+
+    imgs.forEach((img) => {
+      const markLoaded = () => img.classList.add('loaded');
+
+      // If already cached/decoded, load won't fire — handle immediately
+      if (img.complete && img.naturalWidth > 0) {
+        if (img.decode) {
+          img.decode().catch(() => {}).finally(markLoaded);
+        } else {
+          markLoaded();
+        }
+        return;
+      }
+
+      // Normal path
+      img.addEventListener('load', () => {
+        if (img.decode) {
+          img.decode().catch(() => {}).finally(markLoaded);
+        } else {
+          markLoaded();
+        }
+      }, { once: true });
+
+      // Fail safe: don't leave a broken image blurry forever
+      img.addEventListener('error', markLoaded, { once: true });
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    const form = document.getElementById('contact-form');
+    const status = document.getElementById('form-status');
+    const sendBtn = document.getElementById('send-btn');
+
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Disable button + show feedback
+      const original = sendBtn.textContent;
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending…';
+
+      // Build the payload
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          status.textContent = 'Thanks! Your message has been sent.';
+          status.style.color = '#9be0ff';
+          form.reset();
+        } else {
+          status.textContent = (json.message || 'Sorry, something went wrong. Please try again.');
+          status.style.color = '#ff6b6b';
+        }
+      } catch (err) {
+        status.textContent = 'Network error. Please try again in a moment.';
+        status.style.color = '#ff6b6b';
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = original;
+      }
+    });
+  })();
+</script>
+</body>
+</html>

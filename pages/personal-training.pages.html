@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<script>
+  // Put this in every /pages/*.html
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var embedded = params.get('embed') === '1' || (window.self !== window.top);
+    if (embedded) document.documentElement.classList.add('is-embedded');
+  })();
+</script>
+<style>
+  /* Normal page chrome */
+  .page-wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 56px; }
+
+  /* Embed mode: strip page chrome so it looks like modal content */
+  .is-embedded .topbar,
+  .is-embedded .page-crumb { display: none !important; }
+  .is-embedded body { background: transparent; }
+  .is-embedded html { background: transparent; }
+  .is-embedded .page-wrap { padding: 0; max-width: none; }
+</style>
+<head>
+  <meta charset="utf-8">
+  <title>Personal Training — Priscilla Josh</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/assets/modal.css">
+  <style>
+    body{margin:0;padding:16px;background:#000;color:#e9ecf1;}
+    .page{max-width:960px;margin:0 auto;}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .topbar a{color:#9be0ff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a href="/index.html#services">← Back to Services</a>
+      <div></div>
+    </div>
+
+    <!-- BEGIN original PT content -->
+    <!-- Title pulled into the modal header -->
+    <div class="section">
+      <p class="lead-xl">
+        Personal Training: Move with purpose, train with intention—let’s build strength, flexibility, and confidence that lasts beyond the gym.
+      </p>
+      <style>
+      @media (max-width: 768px) {
+        form#pt-request input,
+        form#pt-request select,
+        form#pt-request textarea {
+          width: 100%;
+          box-sizing: border-box;
+        }
+      }
+      </style>
+
+      <div class="section">
+        <h3 class="h3-xl">
+          Fares & Bundles
+          <span class="note-inline" class="muted" style="color:#aab2c1;margin-top:6px">(contact me for prices in other currencies)</span>
+        </h3>
+        <table class="table">
+          <thead>
+            <tr><th>Package</th><th>Length</th><th>What’s included</th><th>Price</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Intro Session</td>
+              <td>60 min</td>
+              <td>Assessment + custom plan</td>
+              <td><strong>80 GEL / 25€</strong></td>
+            </tr>
+            <tr>
+              <td>Single Session</td>
+              <td>60 min</td>
+              <td>Customizable upon request</td>
+              <td><strong>70 GEL / 20€</strong></td>
+            </tr>
+            <tr>
+              <td>Hard-4</td>
+              <td>4 × 60 min</td>
+              <td>Assessment + Personalized program + PT Focus</td>
+              <td><strong>220 GEL / 70€</strong> <span class="badge">save 20%</span></td>
+            </tr>
+            <tr>
+              <td>Hard-8</td>
+              <td>8 × 60 min</td>
+              <td>Assessment + Periodized plan + PT Focus + video feedback</td>
+              <td><strong>400 GEL / 125€</strong> <span class="badge">save 28%</span></td>
+            </tr>
+            <tr>
+              <td>Duet Add-on</td>
+              <td>per session</td>
+              <td>Train with a partner (max 2)</td>
+              <td><strong>+20 GEL / 6€</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mobile cards for PT plans -->
+        <div class="plans-cards" aria-hidden="true">
+          <article class="plan-card">
+            <h4 class="plan-title">Intro Session</h4>
+            <div class="plan-meta">60 min</div>
+            <p class="plan-includes">Assessment + custom plan</p>
+            <div class="plan-price"><strong>80 GEL / 25€</strong></div>
+          </article>
+
+          <article class="plan-card">
+            <h4 class="plan-title">Single Session</h4>
+            <div class="plan-meta">60 min</div>
+            <p class="plan-includes">Customizable upon request</p>
+            <div class="plan-price"><strong>70 GEL / 20€</strong></div>
+          </article>
+
+          <article class="plan-card">
+            <h4 class="plan-title">Hard-4</h4>
+            <div class="plan-meta">4 × 60 min</div>
+            <p class="plan-includes">Assessment + Personalized program + PT Focus</p>
+            <div class="plan-price">
+              <strong>220 GEL / 70€</strong> <span class="badge">save 20%</span>
+            </div>
+          </article>
+
+          <article class="plan-card">
+            <h4 class="plan-title">Hard-8</h4>
+            <div class="plan-meta">8 × 60 min</div>
+            <p class="plan-includes">Assessment + Periodized plan + PT Focus + video feedback</p>
+            <div class="plan-price">
+              <strong>400 GEL / 125€</strong> <span class="badge">save 28%</span>
+            </div>
+          </article>
+
+          <article class="plan-card">
+            <h4 class="plan-title">Duet Add-on</h4>
+            <div class="plan-meta">per session</div>
+            <p class="plan-includes">Train with a partner (max 2)</p>
+            <div class="plan-price"><strong>+20 GEL / 6€</strong></div>
+          </article>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Ready to start? Use the form below—I'll confirm by email within 24 hours.</h3>
+        <form id="pt-request"
+              action="https://api.web3forms.com/submit"
+              method="POST"
+              data-ajax="web3">
+          <input type="hidden" name="access_key" value="06d65f42-5cf5-403d-99cd-2e1d3d2e5f67">
+          <input type="hidden" name="from_name" value="Priscilla Josh — Personal Training">
+          <input type="hidden" name="subject" value="New Personal Training request">
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none!important">
+
+          <div class="form-grid">
+            <div>
+              <label for="pt-name">Name</label>
+              <input id="pt-name" name="name" required>
+            </div>
+
+            <div>
+              <label for="pt-email">Email</label>
+              <input id="pt-email" type="email" name="email" data-web3forms-replyto="true" required>
+            </div>
+
+            <div>
+              <label for="pt-mobile">Mobile (optional)</label>
+              <input id="pt-mobile" type="tel" name="mobile">
+            </div>
+
+            <div>
+              <label for="pt-package">Package</label>
+              <select id="pt-package" name="package" required>
+                <option value="Intro Session (60m)">Intro Session (60m)</option>
+                <option value="Single Session (60m)">Single Session (60m)</option>
+                <option value="4-Pack">Hard-4</option>
+                <option value="8-Pack">Hard-8</option>
+              </select>
+            </div>
+
+            <div class="full">
+              <label for="pt-start">Start date</label>
+              <input id="pt-start" type="date" name="start_date">
+            </div>
+
+            <!-- Wizard -->
+            <div class="field" id="wizAvail">
+              <label class="field-label">Preferred days & times <span class="muted">(optional)</span></label>
+
+              <div class="wiz-step" data-step="days">
+                <p class="wiz-caption">Pick the days that usually work:</p>
+                <div class="chips-row" id="wizDays">
+                  <button type="button" class="chip" data-day="mon">Mon</button>
+                  <button type="button" class="chip" data-day="tue">Tue</button>
+                  <button type="button" class="chip" data-day="wed">Wed</button>
+                  <button type="button" class="chip" data-day="thu">Thu</button>
+                  <button type="button" class="chip" data-day="fri">Fri</button>
+                  <button type="button" class="chip" data-day="sat">Sat</button>
+                  <button type="button" class="chip" data-day="sun">Sun</button>
+                </div>
+                <div class="wiz-actions">
+                  <button type="button" class="primary" id="wizNext" disabled>Next (times)</button>
+                </div>
+              </div>
+
+              <div class="wiz-step is-hidden" data-step="windows">
+                <p class="wiz-caption">For each chosen day, pick the time windows:</p>
+                <div id="wizWindows"></div>
+                <div class="wiz-actions">
+                  <button type="button" class="btn-outline" id="wizBack">Back</button>
+                  <button type="button" class="primary" id="wizDone">Done</button>
+                </div>
+              </div>
+
+              <textarea name="preferred_windows" id="availJSON" hidden></textarea>
+              <input type="hidden" name="preferred_windows_human" id="availHuman">
+
+              <div id="wizRecap" class="wiz-recap is-hidden">
+                <h5 class="wiz-recap-title">Selected availability</h5>
+                <p id="wizRecapText" class="wiz-recap-text">No preferences selected yet.</p>
+                <button type="button" class="link" id="wizEdit">Edit selection</button>
+              </div>
+
+              <div class="full">
+                <label for="pt-goals">Goals / notes</label>
+                <textarea id="pt-goals" name="notes" placeholder="Injury history, goals, equipment available…"></textarea>
+              </div>
+            </div>
+
+            <!-- Policies -->
+            <div class="policies-box">
+              <h3>Policies</h3>
+              <ul class="policies policies-desktop">
+                <li><strong>Rescheduling & Cancellations:</strong> free if 24h+ notice. Otherwise session counted.</li>
+                <li><strong>Lateness:</strong> Up to 15 min tolerated; session still ends on time.</li>
+                <li><strong>Safety:</strong> Please declare injuries or medical concerns in the form.</li>
+              </ul>
+              <ul class="policies policies-mobile">
+                <li><strong>Rescheduling & Cancellations:</strong> free if 24h+ notice. Otherwise session counted.</li>
+                <li><strong>・</strong></li>
+                <li><strong>Lateness:</strong> Up to 15 min tolerated; session still ends on time.</li>
+                <li><strong>・</strong></li>
+                <li><strong>Safety:</strong> Please declare injuries or medical concerns in the form.</li>
+              </ul>
+              <label class="agree-policy">
+                <input type="checkbox" name="agree_policies" required>
+                <span>I agree to the policies above.</span>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="primary">Send Request</button>
+              <p id="pt-status" class="muted" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <script>
+          (function () {
+            const root = document.getElementById('pt-request');
+            if (!root || root.dataset.bound) return;
+            root.dataset.bound = '1';
+
+            const stepDays   = root.querySelector('.wiz-step[data-step="days"]');
+            const stepWins   = root.querySelector('.wiz-step[data-step="windows"]');
+            const daysRow    = root.querySelector('#wizDays');
+            const nextBtn    = root.querySelector('#wizNext');
+            const winsWrap   = root.querySelector('#wizWindows');
+            const backBtn    = root.querySelector('#wizBack');
+            const doneBtn    = root.querySelector('#wizDone');
+            const recap      = root.querySelector('#wizRecap');
+            const recapText  = root.querySelector('#wizRecapText');
+            const outJson    = root.querySelector('#availJSON');
+            const outHuman   = root.querySelector('#availHuman');
+            const editBtn    = root.querySelector('#wizEdit');
+
+            const DAY_LABELS = { mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat', sun:'Sun' };
+            const selectedDays = new Set();
+
+            daysRow.addEventListener('click', (e) => {
+              const btn = e.target.closest('.chip');
+              if (!btn) return;
+              const d = btn.dataset.day;
+              btn.classList.toggle('is-selected');
+              if (btn.classList.contains('is-selected')) selectedDays.add(d);
+              else selectedDays.delete(d);
+              nextBtn.disabled = selectedDays.size === 0;
+            });
+
+            function renderWindows() {
+              winsWrap.innerHTML = '';
+              selectedDays.forEach((d) => {
+                const block = document.createElement('div');
+                block.className = 'wiz-day-block';
+                block.dataset.day = d;
+                block.innerHTML = `
+                  <div class="wiz-day-title">${DAY_LABELS[d] || d}</div>
+                  <div class="chips-row" data-role="winrow">
+                    <button type="button" class="chip" data-win="morning">Morning</button>
+                    <button type="button" class="chip" data-win="afternoon">Afternoon</button>
+                    <button type="button" class="chip" data-win="evening">Evening</button>
+                  </div>`;
+                winsWrap.appendChild(block);
+              });
+            }
+
+            nextBtn.addEventListener('click', () => {
+              renderWindows();
+              stepDays.classList.add('is-hidden');
+              stepWins.classList.remove('is-hidden');
+            });
+
+            winsWrap.addEventListener('click', (e) => {
+              const btn = e.target.closest('.chip');
+              if (!btn) return;
+              btn.classList.toggle('is-selected');
+            });
+
+            backBtn.addEventListener('click', () => {
+              stepWins.classList.add('is-hidden');
+              stepDays.classList.remove('is-hidden');
+            });
+
+            doneBtn.addEventListener('click', () => {
+              const data = {};
+              winsWrap.querySelectorAll('.wiz-day-block').forEach((blk) => {
+                const d = blk.dataset.day;
+                const wins = Array.from(blk.querySelectorAll('.chip.is-selected')).map(b => b.dataset.win);
+                if (wins.length) data[d] = wins;
+              });
+              outJson.value  = JSON.stringify(data);
+              const human = Object.entries(data)
+                .map(([d, wins]) => `${DAY_LABELS[d] || d}: ${wins.join(', ')}`)
+                .join(' | ');
+              outHuman.value = human;
+              recapText.textContent = human || 'No preferences selected yet.';
+              stepWins.classList.add('is-hidden');
+              recap.classList.remove('is-hidden');
+            });
+
+            if (editBtn) {
+              editBtn.addEventListener('click', () => {
+                recap.classList.add('is-hidden');
+                stepDays.classList.remove('is-hidden');
+              });
+            }
+          })();
+          </script>
+        </form>
+      </div>
+    </div>
+    <!-- END original PT content -->
+     <div class="bottombar">
+      <a href="/index.html#services">← Back to Services</a>
+  </div>
+  <script src="/assets/modal.js" defer></script>
+  </div>
+</body>
+</html>
